@@ -1,0 +1,658 @@
+import React, { useState, useEffect } from 'react';
+import { Search, Volume2, Heart, Home, Book, Music, Smile, Flame, Hash, Coffee, Users, MapPin, Clock, Star, Globe, MessageCircle, Utensils, ShoppingBag, Car, Sun, Cloud, Gamepad2, School, Briefcase, HelpCircle } from 'lucide-react';
+
+const CypriotPhrasesApp = () => {
+  const [selectedCategory, setSelectedCategory] = useState('greetings');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [favorites, setFavorites] = useState([]);
+  const [speechSupported, setSpeechSupported] = useState(false);
+  const [showPhonetic, setShowPhonetic] = useState(true);
+  const [quizMode, setQuizMode] = useState(false);
+  const [currentQuizPhrase, setCurrentQuizPhrase] = useState(null);
+  const [quizScore, setQuizScore] = useState(0);
+  const [quizTotal, setQuizTotal] = useState(0);
+  const [showQuizAnswer, setShowQuizAnswer] = useState(false);
+
+  useEffect(() => {
+    setSpeechSupported(window.speechSynthesis !== undefined);
+  }, []);
+
+  const categories = {
+    greetings: {
+      name: 'Χαιρετισμοί',
+      icon: Home,
+      color: 'bg-blue-500',
+      phrases: [
+        { cypriot: 'Γεια σου ρε!', english: 'Hey there!', phonetic: 'Ya sou re!', context: 'Informal greeting among friends' },
+        { cypriot: 'Ίντα μπου κάμνεις;', english: 'How are you doing?', phonetic: 'Inda bou kamnis?', context: 'Common way to ask how someone is' },
+        { cypriot: 'Κοπιάστε', english: 'Welcome/Please come in', phonetic: 'Kopiaste', context: 'Polite invitation to enter' },
+        { cypriot: 'Πάμε τζιαι καλά', english: "We're doing well", phonetic: 'Pame tziai kala', context: 'Response to how are you' },
+        { cypriot: 'Έννεν τίποτε', english: "It's nothing/No problem", phonetic: 'Ennen tipote', context: 'Response to thank you' },
+        { cypriot: 'Άντε γεια', english: 'Goodbye', phonetic: 'Ande ya', context: 'Casual goodbye' },
+        { cypriot: 'Καλημέρα κούμπαρε', english: 'Good morning, friend', phonetic: 'Kalimera koumbare', context: 'Friendly morning greeting' },
+        { cypriot: 'Τι έσιεις;', english: 'What do you have?/What\'s wrong?', phonetic: 'Ti eshis?', context: 'Asking if something is wrong' },
+        { cypriot: 'Καλώς τους', english: 'Welcome them', phonetic: 'Kalos tous', context: 'Welcoming multiple people' },
+        { cypriot: 'Πώς πάει;', english: 'How\'s it going?', phonetic: 'Pos pai?', context: 'Casual check-in' },
+        { cypriot: 'Εν τα ίδια', english: 'Same as usual', phonetic: 'En ta idia', context: 'Nothing new' },
+        { cypriot: 'Γεια σου κόρη', english: 'Hello girl', phonetic: 'Ya sou kori', context: 'Greeting a young woman' },
+        { cypriot: 'Πάεις γερά;', english: 'Are you well?', phonetic: 'Pais yera?', context: 'Asking about health' },
+        { cypriot: 'Καληνύχτα σας', english: 'Good night to you all', phonetic: 'Kalinihta sas', context: 'Polite goodnight' },
+        { cypriot: 'Καλό μεσημέρι', english: 'Good afternoon', phonetic: 'Kalo mesimeri', context: 'Afternoon greeting' },
+        { cypriot: 'Πού ήσουν τόσον τζιαιρόν ρε;', english: 'Where have you been all this time?', phonetic: 'Pou isoun toson tziairon re?', context: 'Long time no see' },
+        { cypriot: 'Από πότε εν σε είδα ρε παιδί μου!', english: "I haven't seen you in ages, my child!", phonetic: 'Apo pote en se ida re pedi mou!', context: 'Expressing how long it\'s been' },
+        { cypriot: 'Έλα να σε φιλήσω που εσιέσαι καλά', english: 'Come let me kiss you, good to see you well', phonetic: 'Ela na se filiso pou eshiese kala', context: 'Warm greeting' },
+        { cypriot: 'Πώς πάσιν τα πράματα στο σπίτιν;', english: 'How are things at home?', phonetic: 'Pos pasin ta pramata sto spitin?', context: 'Asking about family' },
+        { cypriot: 'Καλώς τον, πού εχάθηκες τόσον τζιαιρόν;', english: 'Welcome, where did you disappear all this time?', phonetic: 'Kalos ton, pou ehathikes toson tziairon?', context: 'Greeting after long absence' }
+      ]
+    },
+    everyday: {
+      name: 'Καθημερινές',
+      icon: Hash,
+      color: 'bg-green-500',
+      phrases: [
+        { cypriot: 'Άτε ρε', english: 'Come on', phonetic: 'Ate re', context: 'Encouraging someone' },
+        { cypriot: 'Έλα δα', english: 'Come here', phonetic: 'Ela da', context: 'Calling someone over' },
+        { cypriot: 'Ίντα λαλείς;', english: 'What are you saying?', phonetic: 'Inda lalis?', context: 'Asking for clarification' },
+        { cypriot: 'Εν τζιαι έτσι', english: "It's not like that", phonetic: 'En tziai etsi', context: 'Disagreeing' },
+        { cypriot: 'Πού πάεις;', english: 'Where are you going?', phonetic: 'Pou pais?', context: 'Asking destination' },
+        { cypriot: 'Έσιει μέσα;', english: 'Is anyone home?', phonetic: 'Eshi mesa?', context: 'Knocking on door' },
+        { cypriot: 'Κάτσε να δεις', english: 'Wait and see', phonetic: 'Katse na dis', context: 'Be patient' },
+        { cypriot: 'Εν ξέρω ίντα να κάμω', english: "I don't know what to do", phonetic: 'En ksero inda na kamo', context: 'Expressing confusion' },
+        { cypriot: 'Πάεις καλά;', english: 'Are you okay?/Are you crazy?', phonetic: 'Pais kala?', context: 'Questioning someone\'s sanity' },
+        { cypriot: 'Σιέρεσαι;', english: 'Do you understand?', phonetic: 'Sierese?', context: 'Checking comprehension' },
+        { cypriot: 'Άφησε με ήσυχον', english: 'Leave me alone', phonetic: 'Afise me isihon', context: 'Wanting space' },
+        { cypriot: 'Πού εν το;', english: 'Where is it?', phonetic: 'Pou en to?', context: 'Looking for something' },
+        { cypriot: 'Δώσε μου το', english: 'Give it to me', phonetic: 'Dose mou to', context: 'Requesting something' },
+        { cypriot: 'Εν θέλω', english: "I don't want", phonetic: 'En thelo', context: 'Refusing' },
+        { cypriot: 'Πήαινε τζιαμέ', english: 'Go there', phonetic: 'Piyene tziame', context: 'Directing someone' },
+        { cypriot: 'Έλα μαζί μου', english: 'Come with me', phonetic: 'Ela mazi mou', context: 'Invitation' },
+        { cypriot: 'Περίμενε λλίον', english: 'Wait a bit', phonetic: 'Perimene llion', context: 'Asking for patience' },
+        { cypriot: 'Τελείωσες;', english: 'Are you done?', phonetic: 'Telioses?', context: 'Checking completion' },
+        { cypriot: 'Εν πρέπει', english: "It's not appropriate", phonetic: 'En prepi', context: 'Disapproval' },
+        { cypriot: 'Ποιος εν;', english: 'Who is it?', phonetic: 'Pios en?', context: 'Asking identity' },
+        { cypriot: 'Άκου με προσεκτικά να σου πω', english: 'Listen to me carefully, let me tell you', phonetic: 'Akou me prosektika na sou po', context: 'Getting attention for important info' },
+        { cypriot: 'Εν θέλω να το ξανακούσω τούτον', english: "I don't want to hear this again", phonetic: 'En thelo na to ksanakouso touton', context: 'Final warning' },
+        { cypriot: 'Πήαινε να δεις ίντα κάμνουν', english: 'Go see what they\'re doing', phonetic: 'Piyene na dis inda kamnoun', context: 'Checking on others' },
+        { cypriot: 'Έλα δα να σου δείξω κάτι', english: 'Come here, let me show you something', phonetic: 'Ela da na sou dikso kati', context: 'Showing something' },
+        { cypriot: 'Άφησε το τζιαμέ τζιαι έλα δα', english: 'Leave it there and come here', phonetic: 'Afise to tziame tziai ela da', context: 'Directing movement' },
+        { cypriot: 'Εν μπορώ να το βρω πουθενά', english: "I can't find it anywhere", phonetic: 'En boro na to vro pouthena', context: 'Lost something' },
+        { cypriot: 'Κάτσε ήσυχος για λλίον', english: 'Stay quiet for a bit', phonetic: 'Katse isichos ya llion', context: 'Asking for silence' },
+        { cypriot: 'Πήαινε να φέρεις το που μέσα', english: 'Go bring it from inside', phonetic: 'Piyene na feris to pou mesa', context: 'Fetching something' },
+        { cypriot: 'Εν το θέλω άλλον, πάρτο που δαμέ', english: "I don't want it anymore, take it away from here", phonetic: 'En to thelo allon, parto pou dame', context: 'Rejecting something' },
+        { cypriot: 'Σιώπα λλίον να ακούσουμεν', english: 'Be quiet a bit so we can hear', phonetic: 'Siopa llion na akousoumen', context: 'Requesting silence to listen' }
+      ]
+    },
+    expressions: {
+      name: 'Εκφράσεις',
+      icon: MessageCircle,
+      color: 'bg-purple-500',
+      phrases: [
+        { cypriot: 'Κουτσιά μάντολα', english: 'Nonsense/Rubbish', phonetic: 'Koutsia mandola', context: 'Dismissing silly talk' },
+        { cypriot: 'Τράβα την κουππέπα σου', english: 'Mind your own business', phonetic: 'Trava tin kouppepa sou', context: 'Telling someone to butt out' },
+        { cypriot: 'Εν με το μωρόν', english: "It's not child's play", phonetic: 'En me to moron', context: 'This is serious' },
+        { cypriot: 'Εφκάλεν μου τα μάθκια', english: 'He/she drove me crazy', phonetic: 'Efkalen mou ta mathkia', context: 'Someone annoyed you greatly' },
+        { cypriot: 'Μα το κολοκάσιν', english: 'By the taro! (mild oath)', phonetic: 'Ma to kolokasin', context: 'Mild swearing' },
+        { cypriot: 'Σκάσε πκιο', english: 'Shut up', phonetic: 'Skase pkio', context: 'Telling someone to be quiet' },
+        { cypriot: 'Που τον αέραν', english: 'From nowhere', phonetic: 'Pou ton aeran', context: 'Something appeared suddenly' },
+        { cypriot: 'Εν έσιει πράμαν', english: "There's nothing", phonetic: 'En eshi praman', context: 'Nothing available' },
+        { cypriot: 'Πάει τζιαι ετούτος', english: 'This one is gone too', phonetic: 'Pai tziai etoutos', context: 'Another loss' },
+        { cypriot: 'Εκάμαν τα πούττους', english: 'They messed up', phonetic: 'Ekaman ta pouttous', context: 'Someone failed' },
+        { cypriot: 'Εν τον τζιερόν σου', english: "It's not your time", phonetic: 'En ton tziron sou', context: 'Not your turn' },
+        { cypriot: 'Που πάνω που κάτω', english: 'More or less', phonetic: 'Pou pano pou kato', context: 'Approximately' },
+        { cypriot: 'Άλλον τούντον', english: 'Something else entirely', phonetic: 'Allon tounton', context: 'Completely different' },
+        { cypriot: 'Εν που τζίνους', english: "He's not one of those", phonetic: 'En pou tzinous', context: 'Different type of person' },
+        { cypriot: 'Μες την μέσην', english: 'In the middle of it', phonetic: 'Mes tin mesin', context: 'Right in the action' },
+        { cypriot: 'Τζιαι που πάνω', english: 'On top of that', phonetic: 'Tziai pou pano', context: 'Additionally' },
+        { cypriot: 'Εν μου λαλείς τίποτε', english: "That doesn't mean anything to me", phonetic: 'En mou lalis tipote', context: 'Not impressed' },
+        { cypriot: 'Πήρεν αέραν', english: 'Got wind of it/Got cocky', phonetic: 'Piren aeran', context: 'Became overconfident' },
+        { cypriot: 'Έπιασεν με τα νεύρα', english: 'Got on my nerves', phonetic: 'Epiasen me ta nevra', context: 'Annoyed me' },
+        { cypriot: 'Εφκήκεν που τα ρούχα του', english: 'Lost his temper', phonetic: 'Efkiken pou ta rouha tou', context: 'Got very angry' },
+        { cypriot: 'Έκαμες μου την ζωήν τσιάκκισμαν μαύρον', english: 'You made my life pitch black hell', phonetic: 'Ekames mou tin zoin tsiakkisman mavron', context: 'You made my life miserable' },
+        { cypriot: 'Εν έσιεις τίποτε στο κεφάλιν σου', english: "You don't have anything in your head", phonetic: 'En eshis tipote sto kefalin sou', context: 'Calling someone stupid' },
+        { cypriot: 'Πήεν να βρει την τύχην του τζιαι εχάθηκεν', english: 'He went to find his fortune and got lost', phonetic: 'Pien na vri tin tihin tou tziai ehathiken', context: 'Failed venture' },
+        { cypriot: 'Εν που τζίνους που λαλούν τζιαι κάμνουν', english: "He's not one of those who talk and act", phonetic: 'En pou tzinous pou laloun tziai kamnoun', context: 'All talk, no action' },
+        { cypriot: 'Άφησε με να ζήσω την ζωήν μου', english: 'Let me live my life', phonetic: 'Afise me na ziso tin zoin mou', context: 'Wanting independence' },
+        { cypriot: 'Εν ξέρει που πού του έρκεται', english: "He doesn't know where it's coming from", phonetic: 'En kseri pou pou tou erkete', context: 'Clueless about consequences' },
+        { cypriot: 'Έκαμες το μαύρον άσπρον', english: 'You turned black into white', phonetic: 'Ekames to mavron aspron', context: 'Completely changed the story' },
+        { cypriot: 'Εφκάλαν του οι δαίμονες', english: 'His demons came out', phonetic: 'Efkalan tou i demones', context: 'Showed true colors' },
+        { cypriot: 'Εν έσιει Θεόν που πάνω του', english: "He doesn't have God above him", phonetic: 'En eshi Theon pou pano tou', context: 'No conscience' },
+        { cypriot: 'Έκαμες με ρεζίλιν του κόσμου', english: 'You made me the laughing stock of the world', phonetic: 'Ekames me rezilin tou kosmou', context: 'Public embarrassment' }
+      ]
+    },
+    food: {
+      name: 'Φαγητά & Ποτά',
+      icon: Utensils,
+      color: 'bg-orange-500',
+      phrases: [
+        { cypriot: 'Φάε τζιαι άλλο κομμάτιν', english: 'Eat another piece', phonetic: 'Fae tziai allo kommatin', context: 'Offering more food' },
+        { cypriot: 'Θέλεις χαλλούμιν;', english: 'Do you want halloumi?', phonetic: 'Thelis halloumin?', context: 'Offering cheese' },
+        { cypriot: 'Κάμε μας έναν καφέν', english: 'Make us a coffee', phonetic: 'Kame mas enan kafen', context: 'Coffee request' },
+        { cypriot: 'Εφάαμεν τζιαι εσκάσαμεν', english: 'We ate until we burst', phonetic: 'Efaamen tziai eskasamen', context: 'Ate too much' },
+        { cypriot: 'Έσιει κολοκάσιν;', english: 'Is there taro?', phonetic: 'Eshi kolokasin?', context: 'Asking for specific food' },
+        { cypriot: 'Πιε τζιαι λλίον κρασίν', english: 'Drink some more wine', phonetic: 'Pie tziai llion krasin', context: 'Offering wine' },
+        { cypriot: 'Εν γλυκόν που το μέλιν', english: "It's sweet like honey", phonetic: 'En glikon pou to melin', context: 'Very sweet' },
+        { cypriot: 'Φκάλε τα σουβλάκια', english: 'Take out the souvlaki', phonetic: 'Fkale ta souvlakia', context: 'Preparing BBQ' },
+        { cypriot: 'Βράσε τες πατάτες', english: 'Boil the potatoes', phonetic: 'Vrase tes patates', context: 'Cooking instruction' },
+        { cypriot: 'Εν νόστιμον', english: "It's delicious", phonetic: 'En nostimon', context: 'Complimenting food' },
+        { cypriot: 'Πεινώ σαν το σκυλλίν', english: "I'm hungry as a dog", phonetic: 'Pino san to skillin', context: 'Very hungry' },
+        { cypriot: 'Κόψε μου ψωμίν', english: 'Cut me some bread', phonetic: 'Kopse mou psomin', context: 'Requesting bread' },
+        { cypriot: 'Βάλε αλάτιν', english: 'Add salt', phonetic: 'Vale alatin', context: 'Seasoning food' },
+        { cypriot: 'Εν πολλά αλμυρόν', english: "It's too salty", phonetic: 'En polla almiron', context: 'Over-salted' },
+        { cypriot: 'Θέλω νερόν', english: 'I want water', phonetic: 'Thelo neron', context: 'Thirsty' },
+        { cypriot: 'Έκαμες σιέφταλιες;', english: 'Did you make sheftalia?', phonetic: 'Ekames sieftalies?', context: 'Traditional sausage' },
+        { cypriot: 'Φέρε την φλαούναν', english: 'Bring the flaouna', phonetic: 'Fere tin flaounan', context: 'Easter cheese pie' },
+        { cypriot: 'Ψήσε το αρνίν', english: 'Roast the lamb', phonetic: 'Psise to arnin', context: 'Preparing meat' },
+        { cypriot: 'Εν κρύον το φαΐν', english: 'The food is cold', phonetic: 'En krion to fain', context: 'Temperature complaint' },
+        { cypriot: 'Πκιο σιγά με το κρασίν', english: 'Easy with the wine', phonetic: 'Pkio siga me to krasin', context: 'Drink moderately' },
+        { cypriot: 'Φάε να μεγαλώσεις να γίνεις άντρας', english: 'Eat to grow up and become a man', phonetic: 'Fae na megalosis na yinis andras', context: 'Encouraging child to eat' },
+        { cypriot: 'Εν νόστιμον που το χέριν της μάνας σου', english: "It's delicious from your mother's hand", phonetic: 'En nostimon pou to herin tis manas sou', context: 'Complimenting cooking' },
+        { cypriot: 'Πιε λλίον νερόν να σου περάσει', english: 'Drink some water to help it pass', phonetic: 'Pie llion neron na sou perasei', context: 'Helping with digestion' },
+        { cypriot: 'Έκαμα σου το αγαπημένον σου φαΐν', english: 'I made your favorite food', phonetic: 'Ekama sou to agapimenon sou fain', context: 'Special meal' },
+        { cypriot: 'Μεν το τρως τούτον, εν χαλασμένον', english: "Don't eat this, it's spoiled", phonetic: 'Men to tros touton, en halasmenon', context: 'Food warning' },
+        { cypriot: 'Θέλεις να σου κάμω κάτι να φας;', english: 'Do you want me to make you something to eat?', phonetic: 'Thelis na sou kamo kati na fas?', context: 'Offering to cook' },
+        { cypriot: 'Εφάες ούλλον το φαΐν τζιαι άφηκες μας πεινασμένους', english: 'You ate all the food and left us hungry', phonetic: 'Efaes oullon to fain tziai afikes mas peinasmenous', context: 'Complaint about greed' },
+        { cypriot: 'Βάλε το φαΐν στο ψυγείον να μεν χαλάσει', english: 'Put the food in the fridge so it doesn\'t spoil', phonetic: 'Vale to fain sto psiyion na men halasei', context: 'Food storage' },
+        { cypriot: 'Έλα να φάμεν μαζί σαν οικογένεια', english: "Come let's eat together as a family", phonetic: 'Ela na famen mazi san ikoyenia', context: 'Family meal invitation' },
+        { cypriot: 'Πόσον αλάτιν έβαλες μέσα ρε;', english: 'How much salt did you put in there?', phonetic: 'Poson alatin evales mesa re?', context: 'Too salty complaint' }
+      ]
+    },
+    emotions: {
+      name: 'Συναισθήματα',
+      icon: Smile,
+      color: 'bg-pink-500',
+      phrases: [
+        { cypriot: 'Είμαι χαρούμενος', english: "I'm happy", phonetic: 'Ime haroumenos', context: 'Expressing joy' },
+        { cypriot: 'Εστεναχωρήθηκα', english: 'I got upset', phonetic: 'Estenahorithika', context: 'Feeling sad' },
+        { cypriot: 'Εθυμώσα μαζί του', english: 'I got angry with him', phonetic: 'Ethimosa mazi tou', context: 'Expressing anger' },
+        { cypriot: 'Φοούμαι', english: "I'm afraid", phonetic: 'Fooumai', context: 'Expressing fear' },
+        { cypriot: 'Εν με νοιάζει', english: "I don't care", phonetic: 'En me niazi', context: 'Indifference' },
+        { cypriot: 'Αγαπώ σε πολλά', english: 'I love you very much', phonetic: 'Agapo se polla', context: 'Deep affection' },
+        { cypriot: 'Έσιω άγχος', english: 'I have anxiety', phonetic: 'Esho anghos', context: 'Stressed' },
+        { cypriot: 'Είμαι περήφανος', english: "I'm proud", phonetic: 'Ime perifanos', context: 'Pride' },
+        { cypriot: 'Εντρέπουμαι', english: "I'm embarrassed", phonetic: 'Entrepoumai', context: 'Shame' },
+        { cypriot: 'Είμαι ενθουσιασμένος', english: "I'm excited", phonetic: 'Ime enthousiamenos', context: 'Enthusiasm' },
+        { cypriot: 'Βαρκούμαι', english: "I'm bored", phonetic: 'Varkoumai', context: 'Boredom' },
+        { cypriot: 'Είμαι κουρασμένος νεκρός', english: "I'm dead tired", phonetic: 'Ime kourasmenos nekros', context: 'Exhaustion' },
+        { cypriot: 'Εν μου αρέσκει', english: "I don't like it", phonetic: 'En mou areski', context: 'Dislike' },
+        { cypriot: 'Εξεπλάην', english: 'I was surprised', phonetic: 'Ekseplain', context: 'Surprise' },
+        { cypriot: 'Απογοητεύτηκα', english: 'I was disappointed', phonetic: 'Apogoiteftika', context: 'Disappointment' },
+        { cypriot: 'Με έπιασεν μια στεναχώρια που εν φεύκει', english: 'A sadness caught me that won\'t leave', phonetic: 'Me epiasen mia stenahoria pou en fevki', context: 'Deep sadness' },
+        { cypriot: 'Εφοήθηκα τζιαι την σκιάν μου', english: 'I got scared of my own shadow', phonetic: 'Efoithika tziai tin skian mou', context: 'Very frightened' },
+        { cypriot: 'Έσιω την καρδιάν μου σαν πέτραν', english: 'My heart is like a stone', phonetic: 'Esho tin kardian mou san petran', context: 'Emotionally numb' },
+        { cypriot: 'Εγέλασα μέχρι που έκλαψα', english: 'I laughed until I cried', phonetic: 'Eyelasa mehri pou eklapsa', context: 'Extreme joy' },
+        { cypriot: 'Με έπιασεν το παράπονον', english: 'I feel hurt/wronged', phonetic: 'Me epiasen to paraponon', context: 'Feeling hurt' },
+        { cypriot: 'Εν αντέχω άλλον, εκουράστηκα', english: "I can't take it anymore, I'm tired", phonetic: 'En andeho allon, ekourastika', context: 'At breaking point' },
+        { cypriot: 'Η χαρά μου εν που εν περιγράφεται', english: 'My joy cannot be described', phonetic: 'I hara mou en pou en perigrafete', context: 'Extreme happiness' },
+        { cypriot: 'Έσιω μιαν πίκραν μέσα μου', english: 'I have a bitterness inside me', phonetic: 'Esho mian pikran mesa mou', context: 'Feeling bitter' },
+        { cypriot: 'Εν νιώθω τίποτε πλέον', english: "I don't feel anything anymore", phonetic: 'En niotho tipote pleon', context: 'Emotional numbness' },
+        { cypriot: 'Με κατέλαβεν μια μελαγχολία', english: 'A melancholy overtook me', phonetic: 'Me katelaven mia melagholia', context: 'Feeling melancholic' }
+      ]
+    },
+    family: {
+      name: 'Οικογένεια',
+      icon: Users,
+      color: 'bg-red-500',
+      phrases: [
+        { cypriot: 'Η μάνα μου', english: 'My mother', phonetic: 'I mana mou', context: 'Parent' },
+        { cypriot: 'Ο τζύρης μου', english: 'My father', phonetic: 'O tziris mou', context: 'Parent' },
+        { cypriot: 'Ο παππούς', english: 'Grandfather', phonetic: 'O pappous', context: 'Grandparent' },
+        { cypriot: 'Η γιαγιά', english: 'Grandmother', phonetic: 'I yiayia', context: 'Grandparent' },
+        { cypriot: 'Ο αδερφός μου', english: 'My brother', phonetic: 'O aderfos mou', context: 'Sibling' },
+        { cypriot: 'Η αδερφή μου', english: 'My sister', phonetic: 'I aderfi mou', context: 'Sibling' },
+        { cypriot: 'Το μωρόν', english: 'The baby', phonetic: 'To moron', context: 'Infant' },
+        { cypriot: 'Ο θκειος', english: 'Uncle', phonetic: 'O thkios', context: 'Relative' },
+        { cypriot: 'Η θκεια', english: 'Aunt', phonetic: 'I thkia', context: 'Relative' },
+        { cypriot: 'Τα εγγόνια', english: 'The grandchildren', phonetic: 'Ta engonia', context: 'Descendants' },
+        { cypriot: 'Ο γαμπρός', english: 'Son-in-law/Groom', phonetic: 'O gambros', context: 'In-law' },
+        { cypriot: 'Η νύφη', english: 'Daughter-in-law/Bride', phonetic: 'I nifi', context: 'In-law' },
+        { cypriot: 'Τα ξαδέρφια', english: 'The cousins', phonetic: 'Ta ksaderfia', context: 'Extended family' },
+        { cypriot: 'Ο κουμπάρος', english: 'Best man/Godfather', phonetic: 'O koumbaros', context: 'Special relationship' },
+        { cypriot: 'Η κουμέρα', english: 'Maid of honor/Godmother', phonetic: 'I koumera', context: 'Special relationship' },
+        { cypriot: 'Η μάνα μου λαλεί να πάω σπίτιν νωρίς', english: 'My mother says to come home early', phonetic: 'I mana mou lali na pao spitin noris', context: 'Parental instruction' },
+        { cypriot: 'Ο τζύρης μου εν αυστηρός αλλά δίκαιος', english: 'My father is strict but fair', phonetic: 'O tziris mou en afstiros alla dikeos', context: 'Describing parent' },
+        { cypriot: 'Τα αδέρφια μου εν πάντα μαζί μου', english: 'My siblings are always with me', phonetic: 'Ta aderfia mou en panda mazi mou', context: 'Family support' },
+        { cypriot: 'Ο παππούς μου λαλεί ιστορίες που παλιά', english: 'My grandfather tells stories from old times', phonetic: 'O pappous mou lali istories pou palia', context: 'Family traditions' },
+        { cypriot: 'Η γιαγιά μου κάμνει τα καλύττερα φαγητά', english: 'My grandmother makes the best food', phonetic: 'I yiayia mou kamni ta kalittera fayita', context: 'Grandparent\'s cooking' },
+        { cypriot: 'Οι γονιοί μου θέλουν το καλόν μου', english: 'My parents want what\'s best for me', phonetic: 'I gonii mou theloun to kalon mou', context: 'Parental care' },
+        { cypriot: 'Το σόιν μας εν μεγάλον τζιαι ενωμένον', english: 'Our family is large and united', phonetic: 'To soin mas en megalon tziai enomenon', context: 'Family description' },
+        { cypriot: 'Ο αδερφός μου με υπερασπίζεται πάντα', english: 'My brother always defends me', phonetic: 'O aderfos mou me iperaspizete panda', context: 'Sibling protection' },
+        { cypriot: 'Η αδερφή μου εν η καλύττερη φίλη μου', english: 'My sister is my best friend', phonetic: 'I aderfi mou en i kalitteri fili mou', context: 'Sibling bond' },
+        { cypriot: 'Τα παιδιά μου εν η ζωή μου', english: 'My children are my life', phonetic: 'Ta pedia mou en i zoi mou', context: 'Parental love' }
+      ]
+    },
+    conversations: {
+      name: 'Μεγάλες Συνομιλίες',
+      icon: MessageCircle,
+      color: 'bg-teal-600',
+      phrases: [
+        { cypriot: 'Εν μπορώ να πιστέψω ότι έκαμες το έτσι χωρίς να με ρωτήσεις πρώτα', english: "I can't believe you did it like that without asking me first", phonetic: 'En boro na pistepso oti ekames to etsi horis na me rotisis prota', context: 'Expressing disbelief and disappointment' },
+        { cypriot: 'Που πάμεν έτσι πώς πάμεν, εν πρόκειται να βκάλουμεν άκρην ποττέ', english: "The way we're going, we'll never figure this out", phonetic: 'Pou pamen etsi pos pamen, en prokite na vkaloumen akrin potte', context: 'Frustration with lack of progress' },
+        { cypriot: 'Άκουσε με καλά γιατί εν το ξαναλαλώ, πρέπει να αλλάξεις συμπεριφοράν', english: "Listen to me carefully because I won't say it again, you need to change your behavior", phonetic: 'Akouse me kala yiati en to ksanalalo, prepi na allaksis simperiforan', context: 'Serious warning about behavior' },
+        { cypriot: 'Θυμάσαι πέρσι που επήαμεν στην θάλασσαν τζιαι εχάσαμεν τον δρόμον;', english: 'Remember last year when we went to the sea and got lost?', phonetic: 'Thimase persi pou epiyamen stin thalassan tziai ehasamen ton dromon?', context: 'Reminiscing about past events' },
+        { cypriot: 'Εν πρέπει να τα παρατάς έτσι εύκολα, πρέπει να προσπαθήσεις ξανά', english: "You shouldn't give up so easily, you need to try again", phonetic: 'En prepi na ta paratas etsi efkola, prepi na prospathisis ksana', context: 'Encouragement to persevere' },
+        { cypriot: 'Αν ήξερα ότι έτσι επρόκειτον να γίνει, εν ήμουν να έρτω που την αρχήν', english: "If I knew it would turn out like this, I wouldn't have come from the beginning", phonetic: 'An iksera oti etsi eprokiton na yini, en imoun na erto pou tin arhin', context: 'Regret about participation' },
+        { cypriot: 'Εν έσιει τίποτε που εν μπορούμεν να το λύσουμεν αν καθίσουμεν να μιλήσουμεν', english: "There's nothing we can't solve if we sit down and talk", phonetic: 'En eshi tipote pou en boroumen na to lisoumen an kathisoumen na milisoumen', context: 'Promoting dialogue and communication' },
+        { cypriot: 'Μετά που ούλλα τούτα που επεράσαμεν μαζί, τωρά μου λαλείς τέτοια πράματα;', english: 'After everything we\'ve been through together, now you tell me such things?', phonetic: 'Meta pou oulla touta pou eperasamen mazi, tora mou lalis tetia pramata?', context: 'Hurt by unexpected words' },
+        { cypriot: 'Πρέπει να καταλάβεις ότι η ζωή εν πάντα δίκαιη, αλλά πρέπει να συνεχίσουμεν', english: "You need to understand that life isn't always fair, but we must continue", phonetic: 'Prepi na katalavis oti i zoi en panda dikei, alla prepi na sinehisoumen', context: 'Life lesson about perseverance' },
+        { cypriot: 'Εν μπορώ να καταλάβω γιατί κάμνεις έτσι, εξήγησε μου να καταλάβω', english: "I can't understand why you're acting this way, explain so I can understand", phonetic: 'En boro na katalavo yiati kamnis etsi, eksiyise mou na katalavo', context: 'Seeking understanding' },
+        { cypriot: 'Όταν ήμασταν μικροί, τα πράματα ήταν πιο απλά τζιαι πιο όμορφα', english: 'When we were young, things were simpler and more beautiful', phonetic: 'Otan imastan mikri, ta pramata itan pio apla tziai pio omorfa', context: 'Nostalgia for childhood' },
+        { cypriot: 'Άφησε με να σου εξηγήσω ίντα ακριβώς έγινεν πριν βκάλεις συμπεράσματα', english: 'Let me explain exactly what happened before you draw conclusions', phonetic: 'Afise me na sou eksiyiso inda akrivos eyinen prin vkalis simberasmata', context: 'Asking for chance to explain' },
+        { cypriot: 'Εν θέλω να ακούσω άλλες δικαιολογίες, θέλω να δω πράξεις τωρά', english: "I don't want to hear more excuses, I want to see actions now", phonetic: 'En thelo na akouso alles dikeoloyies, thelo na do praksis tora', context: 'Demanding action over words' },
+        { cypriot: 'Αν συνεχίσεις έτσι, εν πρόκειται να έσιεις κανέναν δίπλα σου', english: "If you continue like this, you won't have anyone by your side", phonetic: 'An sinehisis etsi, en prokite na eshis kanenan dipla sou', context: 'Warning about consequences' },
+        { cypriot: 'Πολλά χρόνια προσπαθώ να σε κάμω να καταλάβεις αλλά εσού τίποτε', english: "I've been trying for years to make you understand but you, nothing", phonetic: 'Polla hronia prospatho na se kamo na katalavis alla esou tipote', context: 'Frustration with lack of understanding' },
+        { cypriot: 'Εν ξέρω αν αντέχω άλλον τούτην την κατάστασην, κάτι πρέπει ν\' αλλάξει', english: "I don't know if I can handle this situation anymore, something needs to change", phonetic: 'En ksero an andeho allon toutin tin katastasin, kati prepi n\' allaksi', context: 'Reaching breaking point' },
+        { cypriot: 'Όσον τζιαι αν προσπαθήσω, εν μπορώ να ξεχάσω ίντα μου έκαμες', english: 'No matter how hard I try, I can\'t forget what you did to me', phonetic: 'Oson tziai an prospathiso, en boro na ksehaso inda mou ekames', context: 'Unable to forgive' },
+        { cypriot: 'Θυμούμαι την πρώτην φοράν που σε είδα, ήσουν τόσον διαφορετικός', english: 'I remember the first time I saw you, you were so different', phonetic: 'Thimoume tin protin foran pou se ida, isoun toson diaforetikos', context: 'Remembering how someone changed' },
+        { cypriot: 'Μετά που ούλλα όσα περάσαμεν, νομίζω ότι αξίζει να δώσουμεν άλλην μιαν ευκαιρίαν', english: 'After everything we\'ve been through, I think it\'s worth giving another chance', phonetic: 'Meta pou oulla osa perasamen, nomizo oti aksizi na dosoumen allin mian efkerian', context: 'Advocating for second chances' },
+        { cypriot: 'Εν μπορώ να πιστέψω ότι εφτάσαμεν σε τούτον το σημείον μετά που τόσα χρόνια', english: "I can't believe we've reached this point after so many years", phonetic: 'En boro na pistepso oti eftasamen se touton to simion meta pou tosa hronia', context: 'Disbelief at current situation' },
+        { cypriot: 'Πάντα έλεες ότι θα είμαστεν μαζί για πάντα, τζιαι τωρά φεύκεις;', english: 'You always said we\'d be together forever, and now you\'re leaving?', phonetic: 'Panda eleyes oti tha imasten mazi ya panda, tziai tora fevkis?', context: 'Feeling betrayed by departure' },
+        { cypriot: 'Αν ήξερες πόσον δύσκολον ήταν για μένα, εν θα μιλούσες έτσι', english: "If you knew how difficult it was for me, you wouldn't speak like that", phonetic: 'An ikseres poson diskolon itan ya mena, en tha milouses etsi', context: 'Asking for empathy' },
+        { cypriot: 'Κάθε φοράν που προσπαθώ να προχωρήσω, κάτι με τραβά πίσω', english: 'Every time I try to move forward, something pulls me back', phonetic: 'Kathe foran pou prospatho na prohoriso, kati me trava piso', context: 'Struggling to progress' },
+        { cypriot: 'Εν αρκετόν που λυπάσαι, πρέπει να δείξεις ότι άλλαξες', english: "It's not enough to be sorry, you need to show that you've changed", phonetic: 'En arketon pou lipase, prepi na diksis oti allakses', context: 'Demanding proof of change' },
+        { cypriot: 'Πόσες φορές πρέπει να σου το πω για να το καταλάβεις επιτέλους;', english: 'How many times do I have to tell you for you to finally understand?', phonetic: 'Poses fores prepi na sou to po ya na to katalavis epitelous?', context: 'Frustration with repetition' },
+        { cypriot: 'Όταν έρκεται η ώρα να πάρεις αποφάσεις, πάντα κρύβεσαι', english: 'When it\'s time to make decisions, you always hide', phonetic: 'Otan erkete i ora na paris apofasis, panda krivese', context: 'Criticizing avoidance' },
+        { cypriot: 'Εν θέλω να χάσω άλλον τζιαιρόν με τούτες τες μαλακίες', english: "I don't want to waste more time with this nonsense", phonetic: 'En thelo na haso allon tziairon me toutes tes malakies', context: 'Fed up with situation' },
+        { cypriot: 'Αν εν σε νοιάζει για μένα, τουλάχιστον σκέψου τα παιδιά', english: "If you don't care about me, at least think about the children", phonetic: 'An en se niazi ya mena, toulahiston skepsou ta pedia', context: 'Appeal to think of others' },
+        { cypriot: 'Προσπάθησα με κάθε τρόπον να σε βοηθήσω αλλά εσού τίποτε', english: 'I tried every way to help you but you, nothing', phonetic: 'Prospathisa me kathe tropon na se voithiso alla esou tipote', context: 'Giving up on helping' },
+        { cypriot: 'Κάθε μέραν που περνά γίνεται τζιαι πιο δύσκολον να συνεχίσω', english: 'Every day that passes it becomes harder to continue', phonetic: 'Kathe meran pou perna yinete tziai pio diskolon na sinehiso', context: 'Growing difficulty' }
+      ]
+    },
+    arguments: {
+      name: 'Διαφωνίες & Συζητήσεις',
+      icon: Flame,
+      color: 'bg-red-700',
+      phrases: [
+        { cypriot: 'Εν έτσι που λαλώ εγώ, άκουσε με πρώτα τζιαι μετά μίλα', english: "That's not what I'm saying, listen to me first then speak", phonetic: 'En etsi pou lalo eyo, akouse me prota tziai meta mila', context: 'Clarifying misunderstanding' },
+        { cypriot: 'Πάντα κάμνεις το ίδιον πράμαν τζιαι μετά θαυμάζεις γιατί θυμώνω', english: 'You always do the same thing and then wonder why I get angry', phonetic: 'Panda kamnis to idion praman tziai meta thavmazis yiati thimono', context: 'Pointing out repeated behavior' },
+        { cypriot: 'Εν δίκαιον να με κατηγορείς για κάτι που εν έκαμα', english: "It's not fair to blame me for something I didn't do", phonetic: 'En dikeon na me katighoris ya kati pou en ekama', context: 'Defending against false accusation' },
+        { cypriot: 'Κάθε φοράν που προσπαθώ να σου μιλήσω, με κόφτεις', english: 'Every time I try to talk to you, you cut me off', phonetic: 'Kathe foran pou prospatho na sou miliso, me koftis', context: 'Communication frustration' },
+        { cypriot: 'Εν θέλω να μαλώνουμεν, αλλά πρέπει να καταλάβεις την θέσην μου', english: "I don't want to fight, but you need to understand my position", phonetic: 'En thelo na malonoumen, alla prepi na katalavis tin thesin mou', context: 'Seeking understanding' },
+        { cypriot: 'Σταμάτα να φωνάζεις τζιαι άκουσε με για μιαν φοράν', english: 'Stop shouting and listen to me for once', phonetic: 'Stamata na fonazis tziai akouse me ya mian foran', context: 'Asking for calm discussion' },
+        { cypriot: 'Πόσες φορές θα το συζητήσουμεν το ίδιον πράμαν;', english: 'How many times will we discuss the same thing?', phonetic: 'Poses fores tha to sizitisomen to idion praman?', context: 'Tired of repetitive arguments' },
+        { cypriot: 'Εν μπορείς να αλλάζεις την ιστορίαν κάθε φοράν που σε βολεύει', english: "You can't change the story every time it suits you", phonetic: 'En boris na allazis tin istorian kathe foran pou se bolevi', context: 'Calling out inconsistency' },
+        { cypriot: 'Αν εν θέλεις να ακούσεις την αλήθειαν, μεν με ρωτάς', english: "If you don't want to hear the truth, don't ask me", phonetic: 'An en thelis na akousis tin alithian, men me rotas', context: 'Warning about honesty' },
+        { cypriot: 'Εν μπορώ να συνεχίσω έτσι, κάτι πρέπει να αλλάξει μεταξύ μας', english: "I can't continue like this, something needs to change between us", phonetic: 'En boro na sinehiso etsi, kati prepi na allaksi metaksi mas', context: 'Relationship ultimatum' },
+        { cypriot: 'Πάντα βρίσκεις δικαιολογίες αντί να παραδεχτείς ότι έκαμες λάθος', english: 'You always find excuses instead of admitting you made a mistake', phonetic: 'Panda vriskis dikeoloyies andi na paradeftis oti ekames lathos', context: 'Criticizing lack of accountability' },
+        { cypriot: 'Μεν με κάμνεις να νιώθω ένοχος για κάτι που εν δικόν σου λάθος', english: "Don't make me feel guilty for something that's your mistake", phonetic: 'Men me kamnis na niotho enohos ya kati pou en dikon sou lathos', context: 'Rejecting guilt manipulation' },
+        { cypriot: 'Όταν σε συμφέρει θυμάσαι, όταν εν σε συμφέρει ξεχνάς', english: 'When it suits you, you remember, when it doesn\'t, you forget', phonetic: 'Otan se simferi thimase, otan en se simferi ksehnas', context: 'Selective memory accusation' },
+        { cypriot: 'Εν αρκετόν που ζητάς συγγνώμην, πρέπει να αλλάξεις συμπεριφοράν', english: "It's not enough to apologize, you need to change your behavior", phonetic: 'En arketon pou zitas signomen, prepi na allaksis simperiforan', context: 'Demanding real change' },
+        { cypriot: 'Κουράστηκα να είμαι πάντα εγώ που κάμνω υποχωρήσεις', english: "I'm tired of always being the one who makes compromises", phonetic: 'Kourastika na ime panda eyo pou kamno ipohorisis', context: 'Relationship imbalance' },
+        { cypriot: 'Μεν αλλάζεις το θέμαν όταν εν σε βολεύει η συζήτησην', english: "Don't change the subject when the discussion doesn't suit you", phonetic: 'Men allazis to theman otan en se bolevi i sizitisyn', context: 'Keeping focus on topic' },
+        { cypriot: 'Αν εν σε ενδιαφέρει η γνώμη μου, γιατί με ρωτάς;', english: "If you're not interested in my opinion, why do you ask me?", phonetic: 'An en se endiaferfi i gnomi mou, yiati me rotas?', context: 'Questioning sincerity' },
+        { cypriot: 'Εσού πάντα έσιεις δίκαιον τζιαι εγώ πάντα λάθος, έτσι;', english: "You're always right and I'm always wrong, is that it?", phonetic: 'Esou panda eshis dikeon tziai eyo panda lathos, etsi?', context: 'Sarcastic about unfairness' },
+        { cypriot: 'Πριν με κατηγορήσεις, κοίταξε πρώτα τον εαυτόν σου', english: 'Before you accuse me, look at yourself first', phonetic: 'Prin me katighorisis, kitakse prota ton eafton sou', context: 'Deflecting criticism' },
+        { cypriot: 'Εν μπορείς να με κάμνεις να νιώθω άσσιημος για τα δικά σου λάθη', english: "You can't make me feel bad for your mistakes", phonetic: 'En boris na me kamnis na niotho assiimos ya ta dika sou lathi', context: 'Rejecting blame shifting' }
+      ]
+    },
+    advice: {
+      name: 'Συμβουλές',
+      icon: Star,
+      color: 'bg-yellow-600',
+      phrases: [
+        { cypriot: 'Άκουσε την καρδιάν σου αλλά πάρε τζιαι το μυαλόν σου μαζί', english: 'Listen to your heart but take your brain with you', phonetic: 'Akouse tin kardian sou alla pare tziai to mialon sou mazi', context: 'Balance emotion and logic' },
+        { cypriot: 'Μεν κάμνεις πράματα που θα μετανιώσεις αύριον', english: "Don't do things you'll regret tomorrow", phonetic: 'Men kamnis pramata pou tha metaniosis avrion', context: 'Think before acting' },
+        { cypriot: 'Η ζωή εν πολλά σύντομη για να την σπαταλάς με ανθρώπους που εν σε εκτιμούν', english: 'Life is too short to waste on people who don\'t appreciate you', phonetic: 'I zoi en polla sindomi ya na tin spatalas me anthropous pou en se ektimoui', context: 'Value yourself' },
+        { cypriot: 'Πρέπει να μάθεις να λαλείς όχι όταν εν θέλεις κάτι', english: 'You need to learn to say no when you don\'t want something', phonetic: 'Prepi na mathis na lalis ohi otan en thelis kati', context: 'Setting boundaries' },
+        { cypriot: 'Το κάθε πράμαν έσιει τον τζιαιρόν του, μεν βιάζεσαι', english: 'Everything has its time, don\'t rush', phonetic: 'To kathe praman eshi ton tziairon tou, men viazese', context: 'Patience in life' },
+        { cypriot: 'Μεν εμπιστεύεσαι τον καθέναν, όχι ούλλοι θέλουν το καλόν σου', english: 'Don\'t trust everyone, not everyone wants your good', phonetic: 'Men embistevese ton kathenan, ohi oulli theloun to kalon sou', context: 'Be cautious with trust' },
+        { cypriot: 'Αν θέλεις να πετύχεις, πρέπει να δουλέψεις σκληρά', english: 'If you want to succeed, you need to work hard', phonetic: 'An thelis na petihis, prepi na doulepsis sklira', context: 'Work ethic' },
+        { cypriot: 'Μεν αφήνεις τον φόβον να σε σταματά που το να κάμεις ίντα θέλεις', english: 'Don\'t let fear stop you from doing what you want', phonetic: 'Men afinis ton fovon na se stamata pou to na kamis inda thelis', context: 'Overcome fear' },
+        { cypriot: 'Πάντα να λαλείς την αλήθειαν ακόμα τζιαι αν εν δύσκολον', english: 'Always tell the truth even if it\'s difficult', phonetic: 'Panda na lalis tin alithian akoma tziai an en diskolon', context: 'Value honesty' },
+        { cypriot: 'Μάθε που τα λάθη σου τζιαι μεν τα επαναλαμβάνεις', english: 'Learn from your mistakes and don\'t repeat them', phonetic: 'Mathe pou ta lathi sou tziai men ta epanalamvanis', context: 'Learning from experience' },
+        { cypriot: 'Να σέβεσαι τους μεγαλύτερους αλλά μεν δέχεσαι ούλλα όσα λαλούν', english: 'Respect your elders but don\'t accept everything they say', phonetic: 'Na sevese tous megaliterous alla men dehese oulla osa laloun', context: 'Balance respect with critical thinking' },
+        { cypriot: 'Η υγεία σου εν το πιο σημαντικόν, πρόσεχε την', english: 'Your health is the most important, take care of it', phonetic: 'I iyia sou en to pio simandikon, prosehe tin', context: 'Health priority' },
+        { cypriot: 'Μεν συγκρίνεις τον εαυτόν σου με άλλους, ο καθένας έσιει τον δρόμον του', english: 'Don\'t compare yourself to others, everyone has their own path', phonetic: 'Men sigkrinis ton eafton sou me allous, o kathenas eshi ton dromon tou', context: 'Individual journey' },
+        { cypriot: 'Αν κάποιος εν σε θέλει στην ζωήν του, μεν επιμένεις', english: 'If someone doesn\'t want you in their life, don\'t insist', phonetic: 'An kapios en se theli stin zoin tou, men epimenis', context: 'Respect others\' choices' },
+        { cypriot: 'Να είσαι ευγνώμων για ίντα έσιεις, πολλοί εν έσιουν τίποτε', english: 'Be grateful for what you have, many have nothing', phonetic: 'Na ise evgnomon ya inda eshis, polli en eshoun tipote', context: 'Gratitude' },
+        { cypriot: 'Το χρήμαν εν τα πάντα, η ευτυχία έρκεται που μέσα', english: 'Money isn\'t everything, happiness comes from within', phonetic: 'To hriman en ta panda, i eftichia erkete pou mesa', context: 'True happiness' },
+        { cypriot: 'Μεν υπόσχεσαι πράματα που εν μπορείς να κρατήσεις', english: 'Don\'t promise things you can\'t keep', phonetic: 'Men iposchese pramata pou en boris na kratisis', context: 'Keep your word' },
+        { cypriot: 'Πρέπει να αγαπάς τον εαυτόν σου πρώτα για να σε αγαπήσουν τζιαι άλλοι', english: 'You need to love yourself first for others to love you too', phonetic: 'Prepi na agapas ton eafton sou prota ya na se agapisoun tziai alli', context: 'Self-love importance' },
+        { cypriot: 'Οι πράξεις μετρούν πιο πολλά που τα λόγια', english: 'Actions count more than words', phonetic: 'I praksis metroun pio polla pou ta loyia', context: 'Actions over words' },
+        { cypriot: 'Μεν ζεις στο παρελθόν, κοίτα μπροστά', english: 'Don\'t live in the past, look forward', phonetic: 'Men zis sto parelthon, kita brosta', context: 'Move forward' }
+      ]
+    },
+    stories: {
+      name: 'Ιστορίες & Αναμνήσεις',
+      icon: Book,
+      color: 'bg-indigo-600',
+      phrases: [
+        { cypriot: 'Θυμάσαι όταν ήμασταν μικροί τζιαι επαίζαμεν στην αυλήν του παππού;', english: 'Remember when we were young and played in grandfather\'s yard?', phonetic: 'Thimase otan imastan mikri tziai epeizamen stin avlin tou pappou?', context: 'Childhood memory' },
+        { cypriot: 'Μια φοράν ο τζύρης μου με επήρεν στο χωρκόν τζιαι εχαθήκαμεν στα χωράφια', english: 'Once my father took me to the village and we got lost in the fields', phonetic: 'Mia foran o tziris mou me epiren sto horkon tziai ehathikamen sta horafia', context: 'Personal story' },
+        { cypriot: 'Η γιαγιά μου πάντα έλεεν ιστορίες για τα παλιά χρόνια όταν εν είχαν τίποτε', english: 'My grandmother always told stories about the old days when they had nothing', phonetic: 'I yiayia mou panda eleen istories ya ta palia hronia otan en ihan tipote', context: 'Family history' },
+        { cypriot: 'Την πρώτην φοράν που επήα στην θάλασσαν εφοήθηκα τα κύματα', english: 'The first time I went to the sea I was afraid of the waves', phonetic: 'Tin protin foran pou epiya stin thalassan efoithika ta kimata', context: 'First experience' },
+        { cypriot: 'Στο σχολείον είχαμεν έναν δάσκαλον που μας έμαθεν να αγαπούμεν την Κύπρον', english: 'At school we had a teacher who taught us to love Cyprus', phonetic: 'Sto scholion ihamen enan daskalon pou mas emathen na agapoumen tin Kipron', context: 'School memory' },
+        { cypriot: 'Κάθε Πάσχα μαζευκούμασταν ούλλη η φαμίλια τζιαι εψήναμεν σούβλα', english: 'Every Easter the whole family gathered and we roasted souvla', phonetic: 'Kathe Pasha mazefkoumastan oulli i familia tziai epsinamen souvla', context: 'Holiday tradition' },
+        { cypriot: 'Όταν ήμουν δεκαοκτώ, επήα να δουλέψω για πρώτην φοράν στα ξενοδοχεία', english: 'When I was eighteen, I went to work for the first time at the hotels', phonetic: 'Otan imoun dekaokto, epiya na doulepso ya protin foran sta ksenodohia', context: 'First job' },
+        { cypriot: 'Η μάνα μου μας έλεεν παραμύθια κάθε βράδυν πριν κοιμηθούμεν', english: 'My mother told us fairy tales every night before we slept', phonetic: 'I mana mou mas eleen paramithia kathe vradin prin kimithoumen', context: 'Bedtime stories' },
+        { cypriot: 'Τον χειμώναν του 1974 ήταν πολλά δύσκολα, είχαμεν φύει που τα σπίτια μας', english: 'The winter of 1974 was very difficult, we had left our homes', phonetic: 'Ton himonan tou 1974 itan polla diskola, ihamen fiei pou ta spitia mas', context: 'Historical memory' },
+        { cypriot: 'Ο παππούς μου ήταν γεωργός τζιαι είχεν ελιές τζιαι πορτοκάλια', english: 'My grandfather was a farmer and had olives and oranges', phonetic: 'O pappous mou itan yeorgos tziai ihen elies tziai portokalia', context: 'Family occupation' },
+        { cypriot: 'Στα γενέθλια μου έκαμαν μου σούρπραϊζ τζιαι έκλαψα που την χαράν', english: 'On my birthday they surprised me and I cried from joy', phonetic: 'Sta yenethlia mou ekaman mou sourpraiz tziai eklapsa pou tin haran', context: 'Happy memory' },
+        { cypriot: 'Όταν πρωτοήρταν οι τουρίστες στο χωρκόν, ούλλοι εθαυμάζαμεν', english: 'When tourists first came to the village, everyone was amazed', phonetic: 'Otan protoirtan i touristes sto horkon, oulli ethavmazamen', context: 'Cultural change' },
+        { cypriot: 'Η πρώτη μου αγάπη ήταν μια κοπέλλα που το χωρκόν, την θυμούμαι ακόμα', english: 'My first love was a girl from the village, I still remember her', phonetic: 'I proti mou agapi itan mia kopella pou to horkon, tin thimoume akoma', context: 'First love' },
+        { cypriot: 'Στον στρατόν εκάμαμεν φίλους για μιαν ζωήν, ακόμα μιλούμεν', english: 'In the army we made friends for life, we still talk', phonetic: 'Ston straton ekamamen filous ya mian zoin, akoma miloumen', context: 'Military service' },
+        { cypriot: 'Την ημέραν που εγεννήθηκεν το πρώτον μου παιδίν, ήταν η πιο όμορφη μέρα', english: 'The day my first child was born was the most beautiful day', phonetic: 'Tin imeran pou eyennithiken to proton mou pedin, itan i pio omorfi mera', context: 'Parenthood' },
+        { cypriot: 'Επήαμεν εκδρομήν στον Τρόοδον τζιαι είδαμεν χιόνιν για πρώτην φοράν', english: 'We went on a trip to Troodos and saw snow for the first time', phonetic: 'Epiyamen ekdromin ston Troodon tziai idamen hionin ya protin foran', context: 'Mountain trip' },
+        { cypriot: 'Το πρώτον μου αυτοκίνητον ήταν ένα παλιόν Μίνι, το αγαπούσα πολλά', english: 'My first car was an old Mini, I loved it very much', phonetic: 'To proton mou aftokiniton itan ena palion Mini, to agapousa polla', context: 'First car' },
+        { cypriot: 'Όταν εμαθεύκαμεν κολύμπιν στον ποταμόν, ο δάσκαλος μας εμάλωνεν', english: 'When we learned to swim in the river, the teacher scolded us', phonetic: 'Otan emathefkamen kolimbin ston potamon, o daskalos mas emalonen', context: 'Childhood mischief' },
+        { cypriot: 'Η γιαγιά έκαμνεν τα καλύττερα μακαρόνια του φούρνου την Κυριακήν', english: 'Grandmother made the best baked pasta on Sunday', phonetic: 'I yiayia ekamnen ta kalittera makaronia tou fournou tin Kiriakin', context: 'Food memory' },
+        { cypriot: 'Στον γάμον μου εχορέψαμεν μέχρι το πρωίν, εν το ξεχνώ ποττέ', english: 'At my wedding we danced until morning, I\'ll never forget it', phonetic: 'Ston gamon mou ehorepsamen mehri to proin, en to ksehno potte', context: 'Wedding celebration' }
+      ]
+    },
+    proverbs: {
+      name: 'Παροιμίες',
+      icon: Book,
+      color: 'bg-teal-500',
+      phrases: [
+        { cypriot: 'Όποιος σιερέται να φάει, σιερέται να δουλέψει', english: 'Who knows how to eat, knows how to work', phonetic: 'Opios sieretai na fai...', context: 'Work ethic' },
+        { cypriot: 'Η γλώσσα κόκκαλα εν έσιει τζιαι κόκκαλα τσακίζει', english: 'The tongue has no bones but breaks bones', phonetic: 'I glossa kokkala...', context: 'Power of words' },
+        { cypriot: 'Άμαν θέλεις να μάθεις τον άνθρωπον, βάλε τον αφέντην', english: 'If you want to know someone, give them power', phonetic: 'Aman thelis na mathis...', context: 'Character test' },
+        { cypriot: 'Που την πολλήν αγάπην βκαίννει τζιαι το μάτιν', english: 'From too much love, even the eye comes out', phonetic: 'Pou tin pollin agapin...', context: 'Excess love' },
+        { cypriot: 'Ο τεμπέλης εν πκιο κουρασμένος', english: 'The lazy one is more tired', phonetic: 'O tembelis en pkio...', context: 'Laziness' },
+        { cypriot: 'Όποιος εν με τον χωρκάτην εν με τον αφέντην', english: "Who's not with the villager is with the master", phonetic: 'Opios en me ton horkatin...', context: 'Taking sides' },
+        { cypriot: 'Το ψέμαν έσιει κοντά ποδκιά', english: 'Lies have short legs', phonetic: 'To pseman eshi konta podkia', context: 'Truth prevails' },
+        { cypriot: 'Ο λόγος εν χρυσός τζιαι η σιωπή διαμάντιν', english: 'Speech is gold and silence is diamond', phonetic: 'O logos en hrisos...', context: 'Value of silence' },
+        { cypriot: 'Κάλλιον αργά παρά ποτέ', english: 'Better late than never', phonetic: 'Kallion arga para pote', context: 'Timing' },
+        { cypriot: 'Όποιος πάει με τα ποδκιά του εν γυρίζει άδειος', english: 'Who goes on foot doesn\'t return empty', phonetic: 'Opios pai me ta podkia tou...', context: 'Effort rewarded' },
+        { cypriot: 'Η καλή μέρα που το πρωίν φαίνεται', english: 'A good day shows from the morning', phonetic: 'I kali mera pou to proin...', context: 'Early signs' },
+        { cypriot: 'Άλλα λαλεί η αλεπού τζιαι άλλα ο αλεπούδος', english: 'The female fox says one thing, the male fox another', phonetic: 'Alla lali i alepou...', context: 'Different perspectives' },
+        { cypriot: 'Το πολύ το κύριε ελέησον το βαρκάται τζιαι ο Θεός', english: 'Even God gets tired of too much "Lord have mercy"', phonetic: 'To poli to kirie eleison...', context: 'Excess prayer' },
+        { cypriot: 'Που μικρόν ρυάτζιν μεγάλη φασαρία', english: 'From a small stream, big noise', phonetic: 'Pou mikron riatzin...', context: 'Small causes, big effects' },
+        { cypriot: 'Ο καθένας με τον πόνον του', english: 'Everyone with their own pain', phonetic: 'O kathenas me ton ponon tou', context: 'Personal struggles' },
+        { cypriot: 'Όποιος έσιει την τύχην του, έσιει τζιαι την δυστυχίαν του', english: 'Who has his fortune, also has his misfortune', phonetic: 'Opios eshi tin tihin tou, eshi tziai tin distikhian tou', context: 'Life balance' },
+        { cypriot: 'Ο πεινασμένος καρβέλια ονειρεύκεται', english: 'The hungry one dreams of bread loaves', phonetic: 'O peinasmenos karvelia oneirevkete', context: 'Desires from need' },
+        { cypriot: 'Που ξένον χοράφιν εν βάλλεις αμπέλιν', english: 'You don\'t plant a vineyard in someone else\'s field', phonetic: 'Pou ksenon horafin en vallis ambelin', context: 'Don\'t invest where you don\'t own' },
+        { cypriot: 'Όποιος φτύννει ψηλά, στα μούτρα του πέφτει', english: 'Who spits high, it falls on his face', phonetic: 'Opios ftinni psila, sta moutra tou pefti', context: 'Arrogance backfires' },
+        { cypriot: 'Η πολλή σοφία φέρνει τρέλλαν', english: 'Too much wisdom brings madness', phonetic: 'I polli sofia ferni trellan', context: 'Overthinking' }
+      ]
+    }
+  };
+
+  const speak = (text) => {
+    if (speechSupported) {
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 0.9;
+      utterance.lang = 'el-GR';
+      window.speechSynthesis.speak(utterance);
+    }
+  };
+
+  const toggleFavorite = (phrase) => {
+    const phraseId = phrase.cypriot;
+    setFavorites(prev => 
+      prev.includes(phraseId)
+        ? prev.filter(f => f !== phraseId)
+        : [...prev, phraseId]
+    );
+  };
+
+  const getAllPhrases = () => {
+    return Object.values(categories).flatMap(cat => cat.phrases);
+  };
+
+  const getFilteredPhrases = () => {
+    const currentPhrases = selectedCategory === 'favorites' 
+      ? getAllPhrases().filter(p => favorites.includes(p.cypriot))
+      : categories[selectedCategory].phrases;
+
+    if (!searchTerm) return currentPhrases;
+
+    return currentPhrases.filter(phrase =>
+      phrase.cypriot.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      phrase.english.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      phrase.phonetic.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  };
+
+  const startQuiz = () => {
+    const allPhrases = getAllPhrases();
+    const randomPhrase = allPhrases[Math.floor(Math.random() * allPhrases.length)];
+    setCurrentQuizPhrase(randomPhrase);
+    setShowQuizAnswer(false);
+    setQuizMode(true);
+  };
+
+  const nextQuizQuestion = () => {
+    const allPhrases = getAllPhrases();
+    const randomPhrase = allPhrases[Math.floor(Math.random() * allPhrases.length)];
+    setCurrentQuizPhrase(randomPhrase);
+    setShowQuizAnswer(false);
+  };
+
+  const handleQuizAnswer = (correct) => {
+    if (correct) {
+      setQuizScore(prev => prev + 1);
+    }
+    setQuizTotal(prev => prev + 1);
+    setShowQuizAnswer(true);
+  };
+
+  const getTotalPhraseCount = () => {
+    return Object.values(categories).reduce((total, cat) => total + cat.phrases.length, 0);
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 pb-8">
+      <div className="max-w-6xl mx-auto p-4">
+        {/* Header */}
+        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">🇨🇾 Κυπριακή Διάλεκτος</h1>
+              <p className="text-gray-600">Learn authentic Cypriot Greek phrases!</p>
+            </div>
+            <div className="text-right">
+              <p className="text-sm text-gray-500">Total phrases</p>
+              <p className="text-2xl font-bold text-indigo-600">{getTotalPhraseCount()}</p>
+            </div>
+          </div>
+          
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              placeholder="Search phrases in Cypriot, English, or phonetic..."
+              className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          {/* Controls */}
+          <div className="flex gap-4 mt-4">
+            <button
+              onClick={() => setShowPhonetic(!showPhonetic)}
+              className="px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg text-sm font-medium transition-colors"
+            >
+              {showPhonetic ? 'Hide' : 'Show'} Phonetic
+            </button>
+            <button
+              onClick={startQuiz}
+              className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              Quiz Mode
+            </button>
+            <div className="ml-auto flex items-center gap-2">
+              <Heart className="w-5 h-5 text-red-500" />
+              <span className="text-sm font-medium">{favorites.length} favorites</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Quiz Mode */}
+        {quizMode && (
+          <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Quiz Mode</h2>
+              <button
+                onClick={() => setQuizMode(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+            
+            {currentQuizPhrase && (
+              <div className="text-center py-8">
+                <p className="text-2xl font-bold mb-4">{currentQuizPhrase.cypriot}</p>
+                {showPhonetic && (
+                  <p className="text-sm text-gray-500 italic mb-4">{currentQuizPhrase.phonetic}</p>
+                )}
+                
+                {!showQuizAnswer ? (
+                  <div className="space-y-2">
+                    <p className="text-gray-600 mb-4">What does this mean?</p>
+                    <button
+                      onClick={() => handleQuizAnswer(false)}
+                      className="px-4 py-2 bg-red-100 hover:bg-red-200 rounded-lg mr-2"
+                    >
+                      Show Answer
+                    </button>
+                  </div>
+                ) : (
+                  <div>
+                    <p className="text-xl text-green-600 mb-4">{currentQuizPhrase.english}</p>
+                    <p className="text-sm text-gray-500 mb-4">{currentQuizPhrase.context}</p>
+                    <button
+                      onClick={nextQuizQuestion}
+                      className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg"
+                    >
+                      Next Question
+                    </button>
+                  </div>
+                )}
+                
+                <div className="mt-6 text-sm text-gray-600">
+                  Score: {quizScore} / {quizTotal}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Category Buttons */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mb-6">
+          {Object.entries(categories).map(([key, cat]) => {
+            const Icon = cat.icon;
+            return (
+              <button
+                key={key}
+                onClick={() => setSelectedCategory(key)}
+                className={`p-4 rounded-lg text-white font-medium transition-all transform hover:scale-105 ${
+                  selectedCategory === key ? cat.color + ' shadow-lg' : 'bg-gray-400'
+                }`}
+              >
+                <Icon className="w-6 h-6 mx-auto mb-2" />
+                <span className="text-xs">{cat.name}</span>
+                <span className="block text-xs opacity-75">({categories[key].phrases.length})</span>
+              </button>
+            );
+          })}
+          
+          <button
+            onClick={() => setSelectedCategory('favorites')}
+            className={`p-4 rounded-lg text-white font-medium transition-all transform hover:scale-105 ${
+              selectedCategory === 'favorites' ? 'bg-red-500 shadow-lg' : 'bg-gray-400'
+            }`}
+          >
+            <Heart className="w-6 h-6 mx-auto mb-2" />
+            <span className="text-xs">Αγαπημένα</span>
+            <span className="block text-xs opacity-75">({favorites.length})</span>
+          </button>
+        </div>
+
+        {/* Phrases Display */}
+        <div className="bg-white rounded-xl shadow-lg p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-2xl font-bold text-gray-800">
+              {selectedCategory === 'favorites' ? 'Αγαπημένα' : categories[selectedCategory].name}
+            </h2>
+            <span className="text-sm text-gray-500">
+              {getFilteredPhrases().length} phrases
+            </span>
+          </div>
+          
+          <div className="space-y-4 max-h-[600px] overflow-y-auto">
+            {getFilteredPhrases().length === 0 ? (
+              <p className="text-gray-500 text-center py-8">
+                {selectedCategory === 'favorites' ? 'No favorites yet! Click the heart icon to add phrases.' : 'No phrases found matching your search.'}
+              </p>
+            ) : (
+              getFilteredPhrases().map((phrase, idx) => (
+                <div key={idx} className="border-b border-gray-100 pb-4 last:border-0 hover:bg-gray-50 p-3 rounded-lg transition-colors">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <p className="text-xl font-semibold text-gray-800 mb-1">
+                        {phrase.cypriot}
+                      </p>
+                      {showPhonetic && (
+                        <p className="text-sm text-gray-500 italic mb-1">{phrase.phonetic}</p>
+                      )}
+                      <p className="text-gray-700 mb-1">{phrase.english}</p>
+                      {phrase.context && (
+                        <p className="text-xs text-gray-400 italic">{phrase.context}</p>
+                      )}
+                    </div>
+                    <div className="flex gap-2 ml-4">
+                      {speechSupported && (
+                        <button
+                          onClick={() => speak(phrase.cypriot)}
+                          className="p-2 rounded-lg bg-blue-100 hover:bg-blue-200 transition-colors"
+                          title="Listen to pronunciation"
+                        >
+                          <Volume2 className="w-5 h-5 text-blue-600" />
+                        </button>
+                      )}
+                      <button
+                        onClick={() => toggleFavorite(phrase)}
+                        className={`p-2 rounded-lg transition-colors ${
+                          favorites.includes(phrase.cypriot)
+                            ? 'bg-red-100 hover:bg-red-200'
+                            : 'bg-gray-100 hover:bg-gray-200'
+                        }`}
+                        title={favorites.includes(phrase.cypriot) ? 'Remove from favorites' : 'Add to favorites'}
+                      >
+                        <Heart
+                          className={`w-5 h-5 ${
+                            favorites.includes(phrase.cypriot)
+                              ? 'text-red-500 fill-current'
+                              : 'text-gray-400'
+                          }`}
+                        />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Stats Footer */}
+        <div className="mt-6 bg-white rounded-xl shadow-lg p-4">
+          <div className="flex justify-around text-center">
+            <div>
+              <p className="text-2xl font-bold text-blue-600">{Object.keys(categories).length}</p>
+              <p className="text-sm text-gray-600">Categories</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-green-600">{getTotalPhraseCount()}</p>
+              <p className="text-sm text-gray-600">Total Phrases</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-red-600">{favorites.length}</p>
+              <p className="text-sm text-gray-600">Favorites</p>
+            </div>
+            <div>
+              <p className="text-2xl font-bold text-purple-600">{getFilteredPhrases().length}</p>
+              <p className="text-sm text-gray-600">Filtered</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CypriotPhrasesApp;
