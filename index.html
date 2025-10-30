@@ -3,462 +3,509 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Κυπριακή Διάλεκτος</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <title>Cypriot Proverbs - Κυπριακές Παροιμίες</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .proverb-card {
+            transition: all 0.2s ease;
+        }
+        .proverb-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .dark .proverb-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .category-nav {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            background: white;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        .dark .category-nav {
+            background: #1f2937;
+            border-bottom-color: #374151;
+        }
+    </style>
 </head>
-<body>
-    <div id="root"></div>
-    <script type="text/babel">
-        const {useState} = React;
-        
-        const App = () => {
-            const [selectedCategory, setSelectedCategory] = useState('greetings');
-            const [searchTerm, setSearchTerm] = useState('');
-            const [favorites, setFavorites] = useState([]);
-            
-            const categories = {
-                greetings: {
-                    name: 'Χαιρετισμοί',
-                    phrases: [
-                        {cypriot: 'Γεια σου ρε!', english: 'Hey there!', phonetic: 'Ya sou re!'},
-                        {cypriot: 'Ίντα μπου κάμνεις;', english: 'How are you?', phonetic: 'Inda bou kamnis?'},
-                        {cypriot: 'Κοπιάστε', english: 'Welcome/Please come in', phonetic: 'Kopiaste'},
-                        {cypriot: 'Πάμε τζιαι καλά', english: "We're doing well", phonetic: 'Pame tziai kala'},
-                        {cypriot: 'Έννεν τίποτε', english: "It's nothing/No problem", phonetic: 'Ennen tipote'},
-                        {cypriot: 'Άντε γεια', english: 'Goodbye', phonetic: 'Ande ya'},
-                        {cypriot: 'Καλημέρα κούμπαρε', english: 'Good morning, friend', phonetic: 'Kalimera koumbare'},
-                        {cypriot: 'Τι έσιεις;', english: "What's wrong?", phonetic: 'Ti eshis?'},
-                        {cypriot: 'Καλώς τους', english: 'Welcome them', phonetic: 'Kalos tous'},
-                        {cypriot: 'Πώς πάει;', english: "How's it going?", phonetic: 'Pos pai?'},
-                        {cypriot: 'Εν τα ίδια', english: 'Same as usual', phonetic: 'En ta idia'},
-                        {cypriot: 'Γεια σου κόρη', english: 'Hello girl', phonetic: 'Ya sou kori'},
-                        {cypriot: 'Πάεις γερά;', english: 'Are you well?', phonetic: 'Pais yera?'},
-                        {cypriot: 'Καληνύχτα σας', english: 'Good night to you all', phonetic: 'Kalinihta sas'},
-                        {cypriot: 'Καλό μεσημέρι', english: 'Good afternoon', phonetic: 'Kalo mesimeri'},
-                        {cypriot: 'Πού ήσουν τόσον τζιαιρόν ρε;', english: 'Where have you been all this time?', phonetic: 'Pou isoun toson tziairon re?'},
-                        {cypriot: 'Από πότε εν σε είδα ρε παιδί μου!', english: "Haven't seen you in ages!", phonetic: 'Apo pote en se ida re pedi mou!'},
-                        {cypriot: 'Έλα να σε φιλήσω που εσιέσαι καλά', english: 'Come let me kiss you, good to see you well', phonetic: 'Ela na se filiso pou eshiese kala'},
-                        {cypriot: 'Πώς πάσιν τα πράματα στο σπίτιν;', english: 'How are things at home?', phonetic: 'Pos pasin ta pramata sto spitin?'},
-                        {cypriot: 'Καλώς τον, πού εχάθηκες τόσον τζιαιρόν;', english: 'Welcome, where did you disappear all this time?', phonetic: 'Kalos ton, pou ehathikes toson tziairon?'}
-                    ]
-                },
-                everyday: {
-                    name: 'Καθημερινές',
-                    phrases: [
-                        {cypriot: 'Άτε ρε', english: 'Come on', phonetic: 'Ate re'},
-                        {cypriot: 'Έλα δα', english: 'Come here', phonetic: 'Ela da'},
-                        {cypriot: 'Ίντα λαλείς;', english: 'What are you saying?', phonetic: 'Inda lalis?'},
-                        {cypriot: 'Εν τζιαι έτσι', english: "It's not like that", phonetic: 'En tziai etsi'},
-                        {cypriot: 'Πού πάεις;', english: 'Where are you going?', phonetic: 'Pou pais?'},
-                        {cypriot: 'Έσιει μέσα;', english: 'Is anyone home?', phonetic: 'Eshi mesa?'},
-                        {cypriot: 'Κάτσε να δεις', english: 'Wait and see', phonetic: 'Katse na dis'},
-                        {cypriot: 'Εν ξέρω ίντα να κάμω', english: "I don't know what to do", phonetic: 'En ksero inda na kamo'},
-                        {cypriot: 'Πάεις καλά;', english: 'Are you okay?/Are you crazy?', phonetic: 'Pais kala?'},
-                        {cypriot: 'Σιέρεσαι;', english: 'Do you understand?', phonetic: 'Sierese?'},
-                        {cypriot: 'Άφησε με ήσυχον', english: 'Leave me alone', phonetic: 'Afise me isihon'},
-                        {cypriot: 'Πού εν το;', english: 'Where is it?', phonetic: 'Pou en to?'},
-                        {cypriot: 'Δώσε μου το', english: 'Give it to me', phonetic: 'Dose mou to'},
-                        {cypriot: 'Εν θέλω', english: "I don't want", phonetic: 'En thelo'},
-                        {cypriot: 'Πήαινε τζιαμέ', english: 'Go there', phonetic: 'Piyene tziame'},
-                        {cypriot: 'Έλα μαζί μου', english: 'Come with me', phonetic: 'Ela mazi mou'},
-                        {cypriot: 'Περίμενε λλίον', english: 'Wait a bit', phonetic: 'Perimene llion'},
-                        {cypriot: 'Τελείωσες;', english: 'Are you done?', phonetic: 'Telioses?'},
-                        {cypriot: 'Εν πρέπει', english: "It's not appropriate", phonetic: 'En prepi'},
-                        {cypriot: 'Ποιος εν;', english: 'Who is it?', phonetic: 'Pios en?'},
-                        {cypriot: 'Άκου με προσεκτικά να σου πω', english: 'Listen to me carefully', phonetic: 'Akou me prosektika na sou po'},
-                        {cypriot: 'Εν θέλω να το ξανακούσω τούτον', english: "I don't want to hear this again", phonetic: 'En thelo na to ksanakouso touton'},
-                        {cypriot: 'Πήαινε να δεις ίντα κάμνουν', english: "Go see what they're doing", phonetic: 'Piyene na dis inda kamnoun'},
-                        {cypriot: 'Έλα δα να σου δείξω κάτι', english: 'Come here, let me show you something', phonetic: 'Ela da na sou dikso kati'},
-                        {cypriot: 'Άφησε το τζιαμέ τζιαι έλα δα', english: 'Leave it there and come here', phonetic: 'Afise to tziame tziai ela da'},
-                        {cypriot: 'Εν μπορώ να το βρω πουθενά', english: "I can't find it anywhere", phonetic: 'En boro na to vro pouthena'},
-                        {cypriot: 'Κάτσε ήσυχος για λλίον', english: 'Stay quiet for a bit', phonetic: 'Katse isichos ya llion'},
-                        {cypriot: 'Πήαινε να φέρεις το που μέσα', english: 'Go bring it from inside', phonetic: 'Piyene na feris to pou mesa'},
-                        {cypriot: 'Εν το θέλω άλλον, πάρτο που δαμέ', english: "I don't want it anymore, take it away", phonetic: 'En to thelo allon, parto pou dame'},
-                        {cypriot: 'Σιώπα λλίον να ακούσουμεν', english: 'Be quiet so we can hear', phonetic: 'Siopa llion na akousoumen'}
-                    ]
-                },
-                expressions: {
-                    name: 'Εκφράσεις',
-                    phrases: [
-                        {cypriot: 'Κουτσιά μάντολα', english: 'Nonsense/Rubbish', phonetic: 'Koutsia mandola'},
-                        {cypriot: 'Τράβα την κουππέπα σου', english: 'Mind your own business', phonetic: 'Trava tin kouppepa sou'},
-                        {cypriot: 'Εν με το μωρόν', english: "It's not child's play", phonetic: 'En me to moron'},
-                        {cypriot: 'Εφκάλεν μου τα μάθκια', english: 'He/she drove me crazy', phonetic: 'Efkalen mou ta mathkia'},
-                        {cypriot: 'Μα το κολοκάσιν', english: 'By the taro! (mild oath)', phonetic: 'Ma to kolokasin'},
-                        {cypriot: 'Σκάσε πκιο', english: 'Shut up', phonetic: 'Skase pkio'},
-                        {cypriot: 'Που τον αέραν', english: 'From nowhere', phonetic: 'Pou ton aeran'},
-                        {cypriot: 'Εν έσιει πράμαν', english: "There's nothing", phonetic: 'En eshi praman'},
-                        {cypriot: 'Πάει τζιαι ετούτος', english: 'This one is gone too', phonetic: 'Pai tziai etoutos'},
-                        {cypriot: 'Εκάμαν τα πούττους', english: 'They messed up', phonetic: 'Ekaman ta pouttous'},
-                        {cypriot: 'Εν τον τζιερόν σου', english: "It's not your time", phonetic: 'En ton tziron sou'},
-                        {cypriot: 'Που πάνω που κάτω', english: 'More or less', phonetic: 'Pou pano pou kato'},
-                        {cypriot: 'Άλλον τούντον', english: 'Something else entirely', phonetic: 'Allon tounton'},
-                        {cypriot: 'Εν που τζίνους', english: "He's not one of those", phonetic: 'En pou tzinous'},
-                        {cypriot: 'Μες την μέσην', english: 'In the middle of it', phonetic: 'Mes tin mesin'},
-                        {cypriot: 'Τζιαι που πάνω', english: 'On top of that', phonetic: 'Tziai pou pano'},
-                        {cypriot: 'Εν μου λαλείς τίποτε', english: "That doesn't mean anything to me", phonetic: 'En mou lalis tipote'},
-                        {cypriot: 'Πήρεν αέραν', english: 'Got wind of it/Got cocky', phonetic: 'Piren aeran'},
-                        {cypriot: 'Έπιασεν με τα νεύρα', english: 'Got on my nerves', phonetic: 'Epiasen me ta nevra'},
-                        {cypriot: 'Εφκήκεν που τα ρούχα του', english: 'Lost his temper', phonetic: 'Efkiken pou ta rouha tou'},
-                        {cypriot: 'Έκαμες μου την ζωήν τσιάκκισμαν μαύρον', english: 'You made my life hell', phonetic: 'Ekames mou tin zoin tsiakkisman mavron'},
-                        {cypriot: 'Εν έσιεις τίποτε στο κεφάλιν σου', english: "You have nothing in your head", phonetic: 'En eshis tipote sto kefalin sou'},
-                        {cypriot: 'Πήεν να βρει την τύχην του τζιαι εχάθηκεν', english: 'Went to find fortune and got lost', phonetic: 'Pien na vri tin tihin tou tziai ehathiken'},
-                        {cypriot: 'Εν που τζίνους που λαλούν τζιαι κάμνουν', english: "Not one who talks and acts", phonetic: 'En pou tzinous pou laloun tziai kamnoun'},
-                        {cypriot: 'Άφησε με να ζήσω την ζωήν μου', english: 'Let me live my life', phonetic: 'Afise me na ziso tin zoin mou'},
-                        {cypriot: 'Εν ξέρει που πού του έρκεται', english: "Doesn't know where it's coming from", phonetic: 'En kseri pou pou tou erkete'},
-                        {cypriot: 'Έκαμες το μαύρον άσπρον', english: 'You turned black into white', phonetic: 'Ekames to mavron aspron'},
-                        {cypriot: 'Εφκάλαν του οι δαίμονες', english: 'His demons came out', phonetic: 'Efkalan tou i demones'},
-                        {cypriot: 'Εν έσιει Θεόν που πάνω του', english: "Has no God above him", phonetic: 'En eshi Theon pou pano tou'},
-                        {cypriot: 'Έκαμες με ρεζίλιν του κόσμου', english: 'You made me the laughing stock', phonetic: 'Ekames me rezilin tou kosmou'}
-                    ]
-                },
-                food: {
-                    name: 'Φαγητά & Ποτά',
-                    phrases: [
-                        {cypriot: 'Φάε τζιαι άλλο κομμάτιν', english: 'Eat another piece', phonetic: 'Fae tziai allo kommatin'},
-                        {cypriot: 'Θέλεις χαλλούμιν;', english: 'Do you want halloumi?', phonetic: 'Thelis halloumin?'},
-                        {cypriot: 'Κάμε μας έναν καφέν', english: 'Make us a coffee', phonetic: 'Kame mas enan kafen'},
-                        {cypriot: 'Εφάαμεν τζιαι εσκάσαμεν', english: 'We ate until we burst', phonetic: 'Efaamen tziai eskasamen'},
-                        {cypriot: 'Έσιει κολοκάσιν;', english: 'Is there taro?', phonetic: 'Eshi kolokasin?'},
-                        {cypriot: 'Πιε τζιαι λλίον κρασίν', english: 'Drink some more wine', phonetic: 'Pie tziai llion krasin'},
-                        {cypriot: 'Εν γλυκόν που το μέλιν', english: "It's sweet like honey", phonetic: 'En glikon pou to melin'},
-                        {cypriot: 'Φκάλε τα σουβλάκια', english: 'Take out the souvlaki', phonetic: 'Fkale ta souvlakia'},
-                        {cypriot: 'Βράσε τες πατάτες', english: 'Boil the potatoes', phonetic: 'Vrase tes patates'},
-                        {cypriot: 'Εν νόστιμον', english: "It's delicious", phonetic: 'En nostimon'},
-                        {cypriot: 'Πεινώ σαν το σκυλλίν', english: "I'm hungry as a dog", phonetic: 'Pino san to skillin'},
-                        {cypriot: 'Κόψε μου ψωμίν', english: 'Cut me some bread', phonetic: 'Kopse mou psomin'},
-                        {cypriot: 'Βάλε αλάτιν', english: 'Add salt', phonetic: 'Vale alatin'},
-                        {cypriot: 'Εν πολλά αλμυρόν', english: "It's too salty", phonetic: 'En polla almiron'},
-                        {cypriot: 'Θέλω νερόν', english: 'I want water', phonetic: 'Thelo neron'},
-                        {cypriot: 'Έκαμες σιέφταλιες;', english: 'Did you make sheftalia?', phonetic: 'Ekames sieftalies?'},
-                        {cypriot: 'Φέρε την φλαούναν', english: 'Bring the flaouna', phonetic: 'Fere tin flaounan'},
-                        {cypriot: 'Ψήσε το αρνίν', english: 'Roast the lamb', phonetic: 'Psise to arnin'},
-                        {cypriot: 'Εν κρύον το φαΐν', english: 'The food is cold', phonetic: 'En krion to fain'},
-                        {cypriot: 'Πκιο σιγά με το κρασίν', english: 'Easy with the wine', phonetic: 'Pkio siga me to krasin'},
-                        {cypriot: 'Φάε να μεγαλώσεις να γίνεις άντρας', english: 'Eat to grow up and become a man', phonetic: 'Fae na megalosis na yinis andras'},
-                        {cypriot: 'Εν νόστιμον που το χέριν της μάνας σου', english: "Delicious from your mother's hand", phonetic: 'En nostimon pou to herin tis manas sou'},
-                        {cypriot: 'Πιε λλίον νερόν να σου περάσει', english: 'Drink water to help it pass', phonetic: 'Pie llion neron na sou perasei'},
-                        {cypriot: 'Έκαμα σου το αγαπημένον σου φαΐν', english: 'I made your favorite food', phonetic: 'Ekama sou to agapimenon sou fain'},
-                        {cypriot: 'Μεν το τρως τούτον, εν χαλασμένον', english: "Don't eat this, it's spoiled", phonetic: 'Men to tros touton, en halasmenon'},
-                        {cypriot: 'Θέλεις να σου κάμω κάτι να φας;', english: 'Want me to make you something to eat?', phonetic: 'Thelis na sou kamo kati na fas?'},
-                        {cypriot: 'Εφάες ούλλον το φαΐν τζιαι άφηκες μας πεινασμένους', english: 'You ate all the food and left us hungry', phonetic: 'Efaes oullon to fain tziai afikes mas peinasmenous'},
-                        {cypriot: 'Βάλε το φαΐν στο ψυγείον να μεν χαλάσει', english: 'Put the food in the fridge', phonetic: 'Vale to fain sto psiyion na men halasei'},
-                        {cypriot: 'Έλα να φάμεν μαζί σαν οικογένεια', english: "Let's eat together as a family", phonetic: 'Ela na famen mazi san ikoyenia'},
-                        {cypriot: 'Πόσον αλάτιν έβαλες μέσα ρε;', english: 'How much salt did you put in?', phonetic: 'Poson alatin evales mesa re?'}
-                    ]
-                },
-                emotions: {
-                    name: 'Συναισθήματα',
-                    phrases: [
-                        {cypriot: 'Είμαι χαρούμενος', english: "I'm happy", phonetic: 'Ime haroumenos'},
-                        {cypriot: 'Εστεναχωρήθηκα', english: 'I got upset', phonetic: 'Estenahorithika'},
-                        {cypriot: 'Εθυμώσα μαζί του', english: 'I got angry with him', phonetic: 'Ethimosa mazi tou'},
-                        {cypriot: 'Φοούμαι', english: "I'm afraid", phonetic: 'Fooumai'},
-                        {cypriot: 'Εν με νοιάζει', english: "I don't care", phonetic: 'En me niazi'},
-                        {cypriot: 'Αγαπώ σε πολλά', english: 'I love you very much', phonetic: 'Agapo se polla'},
-                        {cypriot: 'Έσιω άγχος', english: 'I have anxiety', phonetic: 'Esho anghos'},
-                        {cypriot: 'Είμαι περήφανος', english: "I'm proud", phonetic: 'Ime perifanos'},
-                        {cypriot: 'Εντρέπουμαι', english: "I'm embarrassed", phonetic: 'Entrepoumai'},
-                        {cypriot: 'Είμαι ενθουσιασμένος', english: "I'm excited", phonetic: 'Ime enthousiamenos'},
-                        {cypriot: 'Βαρκούμαι', english: "I'm bored", phonetic: 'Varkoumai'},
-                        {cypriot: 'Είμαι κουρασμένος νεκρός', english: "I'm dead tired", phonetic: 'Ime kourasmenos nekros'},
-                        {cypriot: 'Εν μου αρέσκει', english: "I don't like it", phonetic: 'En mou areski'},
-                        {cypriot: 'Εξεπλάην', english: 'I was surprised', phonetic: 'Ekseplain'},
-                        {cypriot: 'Απογοητεύτηκα', english: 'I was disappointed', phonetic: 'Apogoiteftika'},
-                        {cypriot: 'Με έπιασεν μια στεναχώρια που εν φεύκει', english: 'A sadness caught me that won\'t leave', phonetic: 'Me epiasen mia stenahoria pou en fevki'},
-                        {cypriot: 'Εφοήθηκα τζιαι την σκιάν μου', english: 'Got scared of my own shadow', phonetic: 'Efoithika tziai tin skian mou'},
-                        {cypriot: 'Έσιω την καρδιάν μου σαν πέτραν', english: 'My heart is like a stone', phonetic: 'Esho tin kardian mou san petran'},
-                        {cypriot: 'Εγέλασα μέχρι που έκλαψα', english: 'I laughed until I cried', phonetic: 'Eyelasa mehri pou eklapsa'},
-                        {cypriot: 'Με έπιασεν το παράπονον', english: 'I feel hurt/wronged', phonetic: 'Me epiasen to paraponon'},
-                        {cypriot: 'Εν αντέχω άλλον, εκουράστηκα', english: "Can't take it anymore, I'm tired", phonetic: 'En andeho allon, ekourastika'},
-                        {cypriot: 'Η χαρά μου εν που εν περιγράφεται', english: 'My joy cannot be described', phonetic: 'I hara mou en pou en perigrafete'},
-                        {cypriot: 'Έσιω μιαν πίκραν μέσα μου', english: 'I have bitterness inside me', phonetic: 'Esho mian pikran mesa mou'},
-                        {cypriot: 'Εν νιώθω τίποτε πλέον', english: "I don't feel anything anymore", phonetic: 'En niotho tipote pleon'},
-                        {cypriot: 'Με κατέλαβεν μια μελαγχολία', english: 'Melancholy overtook me', phonetic: 'Me katelaven mia melagholia'}
-                    ]
-                },
-                family: {
-                    name: 'Οικογένεια',
-                    phrases: [
-                        {cypriot: 'Η μάνα μου', english: 'My mother', phonetic: 'I mana mou'},
-                        {cypriot: 'Ο τζύρης μου', english: 'My father', phonetic: 'O tziris mou'},
-                        {cypriot: 'Ο παππούς', english: 'Grandfather', phonetic: 'O pappous'},
-                        {cypriot: 'Η γιαγιά', english: 'Grandmother', phonetic: 'I yiayia'},
-                        {cypriot: 'Ο αδερφός μου', english: 'My brother', phonetic: 'O aderfos mou'},
-                        {cypriot: 'Η αδερφή μου', english: 'My sister', phonetic: 'I aderfi mou'},
-                        {cypriot: 'Το μωρόν', english: 'The baby', phonetic: 'To moron'},
-                        {cypriot: 'Ο θκειος', english: 'Uncle', phonetic: 'O thkios'},
-                        {cypriot: 'Η θκεια', english: 'Aunt', phonetic: 'I thkia'},
-                        {cypriot: 'Τα εγγόνια', english: 'The grandchildren', phonetic: 'Ta engonia'},
-                        {cypriot: 'Ο γαμπρός', english: 'Son-in-law/Groom', phonetic: 'O gambros'},
-                        {cypriot: 'Η νύφη', english: 'Daughter-in-law/Bride', phonetic: 'I nifi'},
-                        {cypriot: 'Τα ξαδέρφια', english: 'The cousins', phonetic: 'Ta ksaderfia'},
-                        {cypriot: 'Ο κουμπάρος', english: 'Best man/Godfather', phonetic: 'O koumbaros'},
-                        {cypriot: 'Η κουμέρα', english: 'Maid of honor/Godmother', phonetic: 'I koumera'},
-                        {cypriot: 'Η μάνα μου λαλεί να πάω σπίτιν νωρίς', english: 'Mother says come home early', phonetic: 'I mana mou lali na pao spitin noris'},
-                        {cypriot: 'Ο τζύρης μου εν αυστηρός αλλά δίκαιος', english: 'My father is strict but fair', phonetic: 'O tziris mou en afstiros alla dikeos'},
-                        {cypriot: 'Τα αδέρφια μου εν πάντα μαζί μου', english: 'My siblings are always with me', phonetic: 'Ta aderfia mou en panda mazi mou'},
-                        {cypriot: 'Ο παππούς μου λαλεί ιστορίες που παλιά', english: 'Grandfather tells old stories', phonetic: 'O pappous mou lali istories pou palia'},
-                        {cypriot: 'Η γιαγιά μου κάμνει τα καλύττερα φαγητά', english: 'Grandmother makes the best food', phonetic: 'I yiayia mou kamni ta kalittera fayita'},
-                        {cypriot: 'Οι γονιοί μου θέλουν το καλόν μου', english: 'My parents want what\'s best for me', phonetic: 'I gonii mou theloun to kalon mou'},
-                        {cypriot: 'Το σόιν μας εν μεγάλον τζιαι ενωμένον', english: 'Our family is large and united', phonetic: 'To soin mas en megalon tziai enomenon'},
-                        {cypriot: 'Ο αδερφός μου με υπερασπίζεται πάντα', english: 'My brother always defends me', phonetic: 'O aderfos mou me iperaspizete panda'},
-                        {cypriot: 'Η αδερφή μου εν η καλύττερη φίλη μου', english: 'My sister is my best friend', phonetic: 'I aderfi mou en i kalitteri fili mou'},
-                        {cypriot: 'Τα παιδιά μου εν η ζωή μου', english: 'My children are my life', phonetic: 'Ta pedia mou en i zoi mou'}
-                    ]
-                },
-                conversations: {
-                    name: 'Συνομιλίες',
-                    phrases: [
-                        {cypriot: 'Εν μπορώ να πιστέψω ότι έκαμες το έτσι χωρίς να με ρωτήσεις πρώτα', english: "Can't believe you did it without asking me first", phonetic: 'En boro na pistepso oti ekames to etsi horis na me rotisis prota'},
-                        {cypriot: 'Που πάμεν έτσι πώς πάμεν, εν πρόκειται να βκάλουμεν άκρην ποττέ', english: "The way we're going, we'll never figure this out", phonetic: 'Pou pamen etsi pos pamen, en prokite na vkaloumen akrin potte'},
-                        {cypriot: 'Άκουσε με καλά γιατί εν το ξαναλαλώ, πρέπει να αλλάξεις συμπεριφοράν', english: "Listen carefully, I won't repeat it, you need to change", phonetic: 'Akouse me kala yiati en to ksanalalo, prepi na allaksis simperiforan'},
-                        {cypriot: 'Θυμάσαι πέρσι που επήαμεν στην θάλασσαν τζιαι εχάσαμεν τον δρόμον;', english: 'Remember last year when we went to the sea and got lost?', phonetic: 'Thimase persi pou epiyamen stin thalassan tziai ehasamen ton dromon?'},
-                        {cypriot: 'Εν πρέπει να τα παρατάς έτσι εύκολα, πρέπει να προσπαθήσεις ξανά', english: "You shouldn't give up so easily, try again", phonetic: 'En prepi na ta paratas etsi efkola, prepi na prospathisis ksana'},
-                        {cypriot: 'Αν ήξερα ότι έτσι επρόκειτον να γίνει, εν ήμουν να έρτω που την αρχήν', english: "If I knew it would turn out like this, I wouldn't have come", phonetic: 'An iksera oti etsi eprokiton na yini, en imoun na erto pou tin arhin'},
-                        {cypriot: 'Εν έσιει τίποτε που εν μπορούμεν να το λύσουμεν αν καθίσουμεν να μιλήσουμεν', english: "There's nothing we can't solve if we sit and talk", phonetic: 'En eshi tipote pou en boroumen na to lisoumen an kathisoumen na milisoumen'},
-                        {cypriot: 'Μετά που ούλλα τούτα που επεράσαμεν μαζί, τωρά μου λαλείς τέτοια πράματα;', english: 'After everything we\'ve been through, now you tell me this?', phonetic: 'Meta pou oulla touta pou eperasamen mazi, tora mou lalis tetia pramata?'},
-                        {cypriot: 'Πρέπει να καταλάβεις ότι η ζωή εν πάντα δίκαιη, αλλά πρέπει να συνεχίσουμεν', english: "Life isn't always fair, but we must continue", phonetic: 'Prepi na katalavis oti i zoi en panda dikei, alla prepi na sinehisoumen'},
-                        {cypriot: 'Εν μπορώ να καταλάβω γιατί κάμνεις έτσι, εξήγησε μου να καταλάβω', english: "I can't understand why you're acting this way, explain", phonetic: 'En boro na katalavo yiati kamnis etsi, eksiyise mou na katalavo'},
-                        {cypriot: 'Όταν ήμασταν μικροί, τα πράματα ήταν πιο απλά τζιαι πιο όμορφα', english: 'When we were young, things were simpler and more beautiful', phonetic: 'Otan imastan mikri, ta pramata itan pio apla tziai pio omorfa'},
-                        {cypriot: 'Άφησε με να σου εξηγήσω ίντα ακριβώς έγινεν πριν βκάλεις συμπεράσματα', english: 'Let me explain exactly what happened before you conclude', phonetic: 'Afise me na sou eksiyiso inda akrivos eyinen prin vkalis simberasmata'},
-                        {cypriot: 'Εν θέλω να ακούσω άλλες δικαιολογίες, θέλω να δω πράξεις τωρά', english: "I don't want more excuses, I want to see actions now", phonetic: 'En thelo na akouso alles dikeoloyies, thelo na do praksis tora'},
-                        {cypriot: 'Αν συνεχίσεις έτσι, εν πρόκειται να έσιεις κανέναν δίπλα σου', english: "If you continue like this, you won't have anyone by your side", phonetic: 'An sinehisis etsi, en prokite na eshis kanenan dipla sou'},
-                        {cypriot: 'Πολλά χρόνια προσπαθώ να σε κάμω να καταλάβεις αλλά εσού τίποτε', english: "I've been trying for years to make you understand but nothing", phonetic: 'Polla hronia prospatho na se kamo na katalavis alla esou tipote'},
-                        {cypriot: 'Εν ξέρω αν αντέχω άλλον τούτην την κατάστασην, κάτι πρέπει ν\' αλλάξει', english: "I don't know if I can handle this anymore, something must change", phonetic: 'En ksero an andeho allon toutin tin katastasin, kati prepi n\' allaksi'},
-                        {cypriot: 'Όσον τζιαι αν προσπαθήσω, εν μπορώ να ξεχάσω ίντα μου έκαμες', english: 'No matter how hard I try, I can\'t forget what you did', phonetic: 'Oson tziai an prospathiso, en boro na ksehaso inda mou ekames'},
-                        {cypriot: 'Θυμούμαι την πρώτην φοράν που σε είδα, ήσουν τόσον διαφορετικός', english: 'I remember the first time I saw you, you were so different', phonetic: 'Thimoume tin protin foran pou se ida, isoun toson diaforetikos'},
-                        {cypriot: 'Μετά που ούλλα όσα περάσαμεν, νομίζω ότι αξίζει να δώσουμεν άλλην μιαν ευκαιρίαν', english: 'After everything we\'ve been through, I think it\'s worth another chance', phonetic: 'Meta pou oulla osa perasamen, nomizo oti aksizi na dosoumen allin mian efkerian'},
-                        {cypriot: 'Εν μπορώ να πιστέψω ότι εφτάσαμεν σε τούτον το σημείον μετά που τόσα χρόνια', english: "Can't believe we've reached this point after so many years", phonetic: 'En boro na pistepso oti eftasamen se touton to simion meta pou tosa hronia'},
-                        {cypriot: 'Πάντα έλεες ότι θα είμαστεν μαζί για πάντα, τζιαι τωρά φεύκεις;', english: 'You always said we\'d be together forever, and now you\'re leaving?', phonetic: 'Panda eleyes oti tha imasten mazi ya panda, tziai tora fevkis?'},
-                        {cypriot: 'Αν ήξερες πόσον δύσκολον ήταν για μένα, εν θα μιλούσες έτσι', english: "If you knew how difficult it was for me, you wouldn't speak like that", phonetic: 'An ikseres poson diskolon itan ya mena, en tha milouses etsi'},
-                        {cypriot: 'Κάθε φοράν που προσπαθώ να προχωρήσω, κάτι με τραβά πίσω', english: 'Every time I try to move forward, something pulls me back', phonetic: 'Kathe foran pou prospatho na prohoriso, kati me trava piso'},
-                        {cypriot: 'Εν αρκετόν που λυπάσαι, πρέπει να δείξεις ότι άλλαξες', english: "It's not enough to be sorry, show that you've changed", phonetic: 'En arketon pou lipase, prepi na diksis oti allakses'},
-                        {cypriot: 'Πόσες φορές πρέπει να σου το πω για να το καταλάβεις επιτέλους;', english: 'How many times must I tell you to finally understand?', phonetic: 'Poses fores prepi na sou to po ya na to katalavis epitelous?'},
-                        {cypriot: 'Όταν έρκεται η ώρα να πάρεις αποφάσεις, πάντα κρύβεσαι', english: 'When it\'s time to make decisions, you always hide', phonetic: 'Otan erkete i ora na paris apofasis, panda krivese'},
-                        {cypriot: 'Εν θέλω να χάσω άλλον τζιαιρόν με τούτες τες μαλακίες', english: "I don't want to waste more time with this nonsense", phonetic: 'En thelo na haso allon tziairon me toutes tes malakies'},
-                        {cypriot: 'Αν εν σε νοιάζει για μένα, τουλάχιστον σκέψου τα παιδιά', english: "If you don't care about me, at least think about the children", phonetic: 'An en se niazi ya mena, toulahiston skepsou ta pedia'},
-                        {cypriot: 'Προσπάθησα με κάθε τρόπον να σε βοηθήσω αλλά εσού τίποτε', english: 'I tried every way to help you but nothing', phonetic: 'Prospathisa me kathe tropon na se voithiso alla esou tipote'},
-                        {cypriot: 'Κάθε μέραν που περνά γίνεται τζιαι πιο δύσκολον να συνεχίσω', english: 'Every day that passes it becomes harder to continue', phonetic: 'Kathe meran pou perna yinete tziai pio diskolon na sinehiso'}
-                    ]
-                },
-                arguments: {
-                    name: 'Διαφωνίες',
-                    phrases: [
-                        {cypriot: 'Εν έτσι που λαλώ εγώ, άκουσε με πρώτα τζιαι μετά μίλα', english: "That's not what I'm saying, listen first then speak", phonetic: 'En etsi pou lalo eyo, akouse me prota tziai meta mila'},
-                        {cypriot: 'Πάντα κάμνεις το ίδιον πράμαν τζιαι μετά θαυμάζεις γιατί θυμώνω', english: 'You always do the same thing then wonder why I get angry', phonetic: 'Panda kamnis to idion praman tziai meta thavmazis yiati thimono'},
-                        {cypriot: 'Εν δίκαιον να με κατηγορείς για κάτι που εν έκαμα', english: "It's not fair to blame me for something I didn't do", phonetic: 'En dikeon na me katighoris ya kati pou en ekama'},
-                        {cypriot: 'Κάθε φοράν που προσπαθώ να σου μιλήσω, με κόφτεις', english: 'Every time I try to talk to you, you cut me off', phonetic: 'Kathe foran pou prospatho na sou miliso, me koftis'},
-                        {cypriot: 'Εν θέλω να μαλώνουμεν, αλλά πρέπει να καταλάβεις την θέσην μου', english: "I don't want to fight, but you need to understand my position", phonetic: 'En thelo na malonoumen, alla prepi na katalavis tin thesin mou'},
-                        {cypriot: 'Σταμάτα να φωνάζεις τζιαι άκουσε με για μιαν φοράν', english: 'Stop shouting and listen to me for once', phonetic: 'Stamata na fonazis tziai akouse me ya mian foran'},
-                        {cypriot: 'Πόσες φορές θα το συζητήσουμεν το ίδιον πράμαν;', english: 'How many times will we discuss the same thing?', phonetic: 'Poses fores tha to sizitisomen to idion praman?'},
-                        {cypriot: 'Εν μπορείς να αλλάζεις την ιστορίαν κάθε φοράν που σε βολεύει', english: "You can't change the story every time it suits you", phonetic: 'En boris na allazis tin istorian kathe foran pou se bolevi'},
-                        {cypriot: 'Αν εν θέλεις να ακούσεις την αλήθειαν, μεν με ρωτάς', english: "If you don't want to hear the truth, don't ask me", phonetic: 'An en thelis na akousis tin alithian, men me rotas'},
-                        {cypriot: 'Εν μπορώ να συνεχίσω έτσι, κάτι πρέπει να αλλάξει μεταξύ μας', english: "I can't continue like this, something needs to change between us", phonetic: 'En boro na sinehiso etsi, kati prepi na allaksi metaksi mas'},
-                        {cypriot: 'Πάντα βρίσκεις δικαιολογίες αντί να παραδεχτείς ότι έκαμες λάθος', english: 'You always find excuses instead of admitting you made a mistake', phonetic: 'Panda vriskis dikeoloyies andi na paradeftis oti ekames lathos'},
-                        {cypriot: 'Μεν με κάμνεις να νιώθω ένοχος για κάτι που εν δικόν σου λάθος', english: "Don't make me feel guilty for your mistake", phonetic: 'Men me kamnis na niotho enohos ya kati pou en dikon sou lathos'},
-                        {cypriot: 'Όταν σε συμφέρει θυμάσαι, όταν εν σε συμφέρει ξεχνάς', english: 'When it suits you, you remember, when it doesn\'t, you forget', phonetic: 'Otan se simferi thimase, otan en se simferi ksehnas'},
-                        {cypriot: 'Εν αρκετόν που ζητάς συγγνώμην, πρέπει να αλλάξεις συμπεριφοράν', english: "It's not enough to apologize, you need to change your behavior", phonetic: 'En arketon pou zitas signomen, prepi na allaksis simperiforan'},
-                        {cypriot: 'Κουράστηκα να είμαι πάντα εγώ που κάμνω υποχωρήσεις', english: "I'm tired of always being the one who makes compromises", phonetic: 'Kourastika na ime panda eyo pou kamno ipohorisis'},
-                        {cypriot: 'Μεν αλλάζεις το θέμαν όταν εν σε βολεύει η συζήτησην', english: "Don't change the subject when the discussion doesn't suit you", phonetic: 'Men allazis to theman otan en se bolevi i sizitisyn'},
-                        {cypriot: 'Αν εν σε ενδιαφέρει η γνώμη μου, γιατί με ρωτάς;', english: "If you're not interested in my opinion, why ask me?", phonetic: 'An en se endiaferfi i gnomi mou, yiati me rotas?'},
-                        {cypriot: 'Εσού πάντα έσιεις δίκαιον τζιαι εγώ πάντα λάθος, έτσι;', english: "You're always right and I'm always wrong, is that it?", phonetic: 'Esou panda eshis dikeon tziai eyo panda lathos, etsi?'},
-                        {cypriot: 'Πριν με κατηγορήσεις, κοίταξε πρώτα τον εαυτόν σου', english: 'Before you accuse me, look at yourself first', phonetic: 'Prin me katighorisis, kitakse prota ton eafton sou'},
-                        {cypriot: 'Εν μπορείς να με κάμνεις να νιώθω άσσιημος για τα δικά σου λάθη', english: "You can't make me feel bad for your mistakes", phonetic: 'En boris na me kamnis na niotho assiimos ya ta dika sou lathi'}
-                    ]
-                },
-                advice: {
-                    name: 'Συμβουλές',
-                    phrases: [
-                        {cypriot: 'Άκουσε την καρδιάν σου αλλά πάρε τζιαι το μυαλόν σου μαζί', english: 'Listen to your heart but take your brain with you', phonetic: 'Akouse tin kardian sou alla pare tziai to mialon sou mazi'},
-                        {cypriot: 'Μεν κάμνεις πράματα που θα μετανιώσεις αύριον', english: "Don't do things you'll regret tomorrow", phonetic: 'Men kamnis pramata pou tha metaniosis avrion'},
-                        {cypriot: 'Η ζωή εν πολλά σύντομη για να την σπαταλάς με ανθρώπους που εν σε εκτιμούν', english: 'Life is too short to waste on people who don\'t appreciate you', phonetic: 'I zoi en polla sindomi ya na tin spatalas me anthropous pou en se ektimoui'},
-                        {cypriot: 'Πρέπει να μάθεις να λαλείς όχι όταν εν θέλεις κάτι', english: 'You need to learn to say no when you don\'t want something', phonetic: 'Prepi na mathis na lalis ohi otan en thelis kati'},
-                        {cypriot: 'Το κάθε πράμαν έσιει τον τζιαιρόν του, μεν βιάζεσαι', english: 'Everything has its time, don\'t rush', phonetic: 'To kathe praman eshi ton tziairon tou, men viazese'},
-                        {cypriot: 'Μεν εμπιστεύεσαι τον καθέναν, όχι ούλλοι θέλουν το καλόν σου', english: 'Don\'t trust everyone, not everyone wants your good', phonetic: 'Men embistevese ton kathenan, ohi oulli theloun to kalon sou'},
-                        {cypriot: 'Αν θέλεις να πετύχεις, πρέπει να δουλέψεις σκληρά', english: 'If you want to succeed, you need to work hard', phonetic: 'An thelis na petihis, prepi na doulepsis sklira'},
-                        {cypriot: 'Μεν αφήνεις τον φόβον να σε σταματά που το να κάμεις ίντα θέλεις', english: 'Don\'t let fear stop you from doing what you want', phonetic: 'Men afinis ton fovon na se stamata pou to na kamis inda thelis'},
-                        {cypriot: 'Πάντα να λαλείς την αλήθειαν ακόμα τζιαι αν εν δύσκολον', english: 'Always tell the truth even if it\'s difficult', phonetic: 'Panda na lalis tin alithian akoma tziai an en diskolon'},
-                        {cypriot: 'Μάθε που τα λάθη σου τζιαι μεν τα επαναλαμβάνεις', english: 'Learn from your mistakes and don\'t repeat them', phonetic: 'Mathe pou ta lathi sou tziai men ta epanalamvanis'},
-                        {cypriot: 'Να σέβεσαι τους μεγαλύτερους αλλά μεν δέχεσαι ούλλα όσα λαλούν', english: 'Respect your elders but don\'t accept everything they say', phonetic: 'Na sevese tous megaliterous alla men dehese oulla osa laloun'},
-                        {cypriot: 'Η υγεία σου εν το πιο σημαντικόν, πρόσεχε την', english: 'Your health is the most important, take care of it', phonetic: 'I iyia sou en to pio simandikon, prosehe tin'},
-                        {cypriot: 'Μεν συγκρίνεις τον εαυτόν σου με άλλους, ο καθένας έσιει τον δρόμον του', english: 'Don\'t compare yourself to others, everyone has their own path', phonetic: 'Men sigkrinis ton eafton sou me allous, o kathenas eshi ton dromon tou'},
-                        {cypriot: 'Αν κάποιος εν σε θέλει στην ζωήν του, μεν επιμένεις', english: 'If someone doesn\'t want you in their life, don\'t insist', phonetic: 'An kapios en se theli stin zoin tou, men epimenis'},
-                        {cypriot: 'Να είσαι ευγνώμων για ίντα έσιεις, πολλοί εν έσιουν τίποτε', english: 'Be grateful for what you have, many have nothing', phonetic: 'Na ise evgnomon ya inda eshis, polli en eshoun tipote'},
-                        {cypriot: 'Το χρήμαν εν τα πάντα, η ευτυχία έρκεται που μέσα', english: 'Money isn\'t everything, happiness comes from within', phonetic: 'To hriman en ta panda, i eftichia erkete pou mesa'},
-                        {cypriot: 'Μεν υπόσχεσαι πράματα που εν μπορείς να κρατήσεις', english: 'Don\'t promise things you can\'t keep', phonetic: 'Men iposchese pramata pou en boris na kratisis'},
-                        {cypriot: 'Πρέπει να αγαπάς τον εαυτόν σου πρώτα για να σε αγαπήσουν τζιαι άλλοι', english: 'You need to love yourself first for others to love you too', phonetic: 'Prepi na agapas ton eafton sou prota ya na se agapisoun tziai alli'},
-                        {cypriot: 'Οι πράξεις μετρούν πιο πολλά που τα λόγια', english: 'Actions count more than words', phonetic: 'I praksis metroun pio polla pou ta loyia'},
-                        {cypriot: 'Μεν ζεις στο παρελθόν, κοίτα μπροστά', english: 'Don\'t live in the past, look forward', phonetic: 'Men zis sto parelthon, kita brosta'}
-                    ]
-                },
-                stories: {
-                    name: 'Ιστορίες',
-                    phrases: [
-                        {cypriot: 'Θυμάσαι όταν ήμασταν μικροί τζιαι επαίζαμεν στην αυλήν του παππού;', english: 'Remember when we were young and played in grandfather\'s yard?', phonetic: 'Thimase otan imastan mikri tziai epeizamen stin avlin tou pappou?'},
-                        {cypriot: 'Μια φοράν ο τζύρης μου με επήρεν στο χωρκόν τζιαι εχαθήκαμεν στα χωράφια', english: 'Once my father took me to the village and we got lost in the fields', phonetic: 'Mia foran o tziris mou me epiren sto horkon tziai ehathikamen sta horafia'},
-                        {cypriot: 'Η γιαγιά μου πάντα έλεεν ιστορίες για τα παλιά χρόνια όταν εν είχαν τίποτε', english: 'My grandmother always told stories about the old days when they had nothing', phonetic: 'I yiayia mou panda eleen istories ya ta palia hronia otan en ihan tipote'},
-                        {cypriot: 'Την πρώτην φοράν που επήα στην θάλασσαν εφοήθηκα τα κύματα', english: 'The first time I went to the sea I was afraid of the waves', phonetic: 'Tin protin foran pou epiya stin thalassan efoithika ta kimata'},
-                        {cypriot: 'Στο σχολείον είχαμεν έναν δάσκαλον που μας έμαθεν να αγαπούμεν την Κύπρον', english: 'At school we had a teacher who taught us to love Cyprus', phonetic: 'Sto scholion ihamen enan daskalon pou mas emathen na agapoumen tin Kipron'},
-                        {cypriot: 'Κάθε Πάσχα μαζευκούμασταν ούλλη η φαμίλια τζιαι εψήναμεν σούβλα', english: 'Every Easter the whole family gathered and we roasted souvla', phonetic: 'Kathe Pasha mazefkoumastan oulli i familia tziai epsinamen souvla'},
-                        {cypriot: 'Όταν ήμουν δεκαοκτώ, επήα να δουλέψω για πρώτην φοράν στα ξενοδοχεία', english: 'When I was eighteen, I went to work for the first time at the hotels', phonetic: 'Otan imoun dekaokto, epiya na doulepso ya protin foran sta ksenodohia'},
-                        {cypriot: 'Η μάνα μου μας έλεεν παραμύθια κάθε βράδυν πριν κοιμηθούμεν', english: 'My mother told us fairy tales every night before we slept', phonetic: 'I mana mou mas eleen paramithia kathe vradin prin kimithoumen'},
-                        {cypriot: 'Τον χειμώναν του 1974 ήταν πολλά δύσκολα, είχαμεν φύει που τα σπίτια μας', english: 'The winter of 1974 was very difficult, we had left our homes', phonetic: 'Ton himonan tou 1974 itan polla diskola, ihamen fiei pou ta spitia mas'},
-                        {cypriot: 'Ο παππούς μου ήταν γεωργός τζιαι είχεν ελιές τζιαι πορτοκάλια', english: 'My grandfather was a farmer and had olives and oranges', phonetic: 'O pappous mou itan yeorgos tziai ihen elies tziai portokalia'},
-                        {cypriot: 'Στα γενέθλια μου έκαμαν μου σούρπραϊζ τζιαι έκλαψα που την χαράν', english: 'On my birthday they surprised me and I cried from joy', phonetic: 'Sta yenethlia mou ekaman mou sourpraiz tziai eklapsa pou tin haran'},
-                        {cypriot: 'Όταν πρωτοήρταν οι τουρίστες στο χωρκόν, ούλλοι εθαυμάζαμεν', english: 'When tourists first came to the village, everyone was amazed', phonetic: 'Otan protoirtan i touristes sto horkon, oulli ethavmazamen'},
-                        {cypriot: 'Η πρώτη μου αγάπη ήταν μια κοπέλλα που το χωρκόν, την θυμούμαι ακόμα', english: 'My first love was a girl from the village, I still remember her', phonetic: 'I proti mou agapi itan mia kopella pou to horkon, tin thimoume akoma'},
-                        {cypriot: 'Στον στρατόν εκάμαμεν φίλους για μιαν ζωήν, ακόμα μιλούμεν', english: 'In the army we made friends for life, we still talk', phonetic: 'Ston straton ekamamen filous ya mian zoin, akoma miloumen'},
-                        {cypriot: 'Την ημέραν που εγεννήθηκεν το πρώτον μου παιδίν, ήταν η πιο όμορφη μέρα', english: 'The day my first child was born was the most beautiful day', phonetic: 'Tin imeran pou eyennithiken to proton mou pedin, itan i pio omorfi mera'},
-                        {cypriot: 'Επήαμεν εκδρομήν στον Τρόοδον τζιαι είδαμεν χιόνιν για πρώτην φοράν', english: 'We went on a trip to Troodos and saw snow for the first time', phonetic: 'Epiyamen ekdromin ston Troodon tziai idamen hionin ya protin foran'},
-                        {cypriot: 'Το πρώτον μου αυτοκίνητον ήταν ένα παλιόν Μίνι, το αγαπούσα πολλά', english: 'My first car was an old Mini, I loved it very much', phonetic: 'To proton mou aftokiniton itan ena palion Mini, to agapousa polla'},
-                        {cypriot: 'Όταν εμαθεύκαμεν κολύμπιν στον ποταμόν, ο δάσκαλος μας εμάλωνεν', english: 'When we learned to swim in the river, the teacher scolded us', phonetic: 'Otan emathefkamen kolimbin ston potamon, o daskalos mas emalonen'},
-                        {cypriot: 'Η γιαγιά έκαμνεν τα καλύττερα μακαρόνια του φούρνου την Κυριακήν', english: 'Grandmother made the best baked pasta on Sunday', phonetic: 'I yiayia ekamnen ta kalittera makaronia tou fournou tin Kiriakin'},
-                        {cypriot: 'Στον γάμον μου εχορέψαμεν μέχρι το πρωίν, εν το ξεχνώ ποττέ', english: 'At my wedding we danced until morning, I\'ll never forget it', phonetic: 'Ston gamon mou ehorepsamen mehri to proin, en to ksehno potte'}
-                    ]
-                },
-                proverbs: {
-                    name: 'Παροιμίες',
-                    phrases: [
-                        {cypriot: 'Όποιος σιερέται να φάει, σιερέται να δουλέψει', english: 'Who knows how to eat, knows how to work', phonetic: 'Opios sieretai na fai, sieretai na doulepsi'},
-                        {cypriot: 'Η γλώσσα κόκκαλα εν έσιει τζιαι κόκκαλα τσακίζει', english: 'The tongue has no bones but breaks bones', phonetic: 'I glossa kokkala en eshi tziai kokkala tsakizi'},
-                        {cypriot: 'Άμαν θέλεις να μάθεις τον άνθρωπον, βάλε τον αφέντην', english: 'If you want to know someone, give them power', phonetic: 'Aman thelis na mathis ton anthropon, vale ton afentin'},
-                        {cypriot: 'Που την πολλήν αγάπην βκαίννει τζιαι το μάτιν', english: 'From too much love, even the eye comes out', phonetic: 'Pou tin pollin agapin vkenni tziai to matin'},
-                        {cypriot: 'Ο τεμπέλης εν πκιο κουρασμένος', english: 'The lazy one is more tired', phonetic: 'O tembelis en pkio kourasmenos'},
-                        {cypriot: 'Όποιος εν με τον χωρκάτην εν με τον αφέντην', english: "Who's not with the villager is with the master", phonetic: 'Opios en me ton horkatin en me ton afentin'},
-                        {cypriot: 'Το ψέμαν έσιει κοντά ποδκιά', english: 'Lies have short legs', phonetic: 'To pseman eshi konta podkia'},
-                        {cypriot: 'Ο λόγος εν χρυσός τζιαι η σιωπή διαμάντιν', english: 'Speech is gold and silence is diamond', phonetic: 'O logos en hrisos tziai i siopi diamantin'},
-                        {cypriot: 'Κάλλιον αργά παρά ποτέ', english: 'Better late than never', phonetic: 'Kallion arga para pote'},
-                        {cypriot: 'Όποιος πάει με τα ποδκιά του εν γυρίζει άδειος', english: 'Who goes on foot doesn\'t return empty', phonetic: 'Opios pai me ta podkia tou en yirizi adios'},
-                        {cypriot: 'Η καλή μέρα που το πρωίν φαίνεται', english: 'A good day shows from the morning', phonetic: 'I kali mera pou to proin fenete'},
-                        {cypriot: 'Άλλα λαλεί η αλεπού τζιαι άλλα ο αλεπούδος', english: 'The female fox says one thing, the male fox another', phonetic: 'Alla lali i alepou tziai alla o alepoudos'},
-                        {cypriot: 'Το πολύ το κύριε ελέησον το βαρκάται τζιαι ο Θεός', english: 'Even God gets tired of too much "Lord have mercy"', phonetic: 'To poli to kirie eleison to varkate tziai o Theos'},
-                        {cypriot: 'Που μικρόν ρυάτζιν μεγάλη φασαρία', english: 'From a small stream, big noise', phonetic: 'Pou mikron riatzin megali fasaria'},
-                        {cypriot: 'Ο καθένας με τον πόνον του', english: 'Everyone with their own pain', phonetic: 'O kathenas me ton ponon tou'},
-                        {cypriot: 'Όποιος έσιει την τύχην του, έσιει τζιαι την δυστυχίαν του', english: 'Who has his fortune, also has his misfortune', phonetic: 'Opios eshi tin tihin tou, eshi tziai tin distihian tou'},
-                        {cypriot: 'Ο πεινασμένος καρβέλια ονειρεύκεται', english: 'The hungry one dreams of bread loaves', phonetic: 'O peinasmenos karvelia onirevkete'},
-                        {cypriot: 'Που ξένον χοράφιν εν βάλλεις αμπέλιν', english: 'You don\'t plant a vineyard in someone else\'s field', phonetic: 'Pou ksenon horafin en vallis ambelin'},
-                        {cypriot: 'Όποιος φτύννει ψηλά, στα μούτρα του πέφτει', english: 'Who spits high, it falls on his face', phonetic: 'Opios ftinni psila, sta moutra tou pefti'},
-                        {cypriot: 'Η πολλή σοφία φέρνει τρέλλαν', english: 'Too much wisdom brings madness', phonetic: 'I polli sofia ferni trellan'}
-                    ]
-                }
-            };
+<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-indigo-600 to-purple-600 text-white py-6 shadow-lg">
+        <div class="container mx-auto px-4">
+            <h1 class="text-3xl md:text-4xl font-bold text-center mb-2">Cypriot Proverbs</h1>
+            <p class="text-center text-indigo-100 text-sm md:text-base">Κυπριακές Παροιμίες - Greek to English</p>
+        </div>
+    </header>
 
-            const getFilteredPhrases = () => {
-                const phrases = selectedCategory === 'favorites' 
-                    ? Object.values(categories).flatMap(c => c.phrases).filter(p => favorites.includes(p.cypriot))
-                    : categories[selectedCategory].phrases;
-                
-                if (!searchTerm) return phrases;
-                return phrases.filter(p => 
-                    p.cypriot.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                    p.english.toLowerCase().includes(searchTerm.toLowerCase())
-                );
-            };
+    <!-- Main Container -->
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+        <!-- Search Bar -->
+        <div class="mb-6">
+            <input
+                type="text"
+                id="searchInput"
+                placeholder="Search proverbs in Greek or English..."
+                class="w-full px-4 py-3 text-base rounded-lg border-2 border-gray-300 dark:border-gray-600 focus:border-indigo-500 dark:focus:border-indigo-400 focus:ring-2 focus:ring-indigo-200 dark:focus:ring-indigo-900 outline-none bg-white dark:bg-gray-800 transition-all"
+            >
+        </div>
 
-            const toggleFavorite = (phrase) => {
-                setFavorites(prev => 
-                    prev.includes(phrase) ? prev.filter(f => f !== phrase) : [...prev, phrase]
-                );
-            };
+        <!-- Category Navigation -->
+        <nav class="category-nav py-4 mb-6">
+            <div class="flex flex-wrap gap-2 justify-center" id="categoryNav">
+                <!-- Categories will be inserted here -->
+            </div>
+        </nav>
 
-            const totalPhrases = Object.values(categories).reduce((sum, cat) => sum + cat.phrases.length, 0);
-
-            return (
-                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 p-4">
-                    <div className="max-w-5xl mx-auto">
-                        <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
-                            <h1 className="text-3xl font-bold text-gray-800 mb-2">🇨🇾 Κυπριακή Διάλεκτος - Cypriot Greek Phrases</h1>
-
-                            <div className="grid grid-cols-4 gap-4 mb-4 text-center">
-                                <div>
-                                    <div className="text-2xl font-bold text-blue-600">{totalPhrases}</div>
-                                    <div className="text-xs text-gray-500">Total Phrases</div>
-                                </div>
-                                <div>
-                                    <div className="text-2xl font-bold text-blue-600">{Object.keys(categories).length}</div>
-                                    <div className="text-xs text-gray-500">Categories</div>
-                                </div>
-                                <div>
-                                    <div className="text-2xl font-bold text-blue-600">{favorites.length}</div>
-                                    <div className="text-xs text-gray-500">Favorites</div>
-                                </div>
-                                <div>
-                                    <div className="text-2xl font-bold text-blue-600">{getFilteredPhrases().length}</div>
-                                    <div className="text-xs text-gray-500">Filtered</div>
-                                </div>
-                            </div>
-
-                            <input
-                                type="text"
-                                placeholder="🔍 Search phrases in Cypriot, English..."
-                                className="w-full p-3 border rounded-lg"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
-
-                        <div className="grid grid-cols-3 md:grid-cols-4 gap-2 mb-6">
-                            {Object.entries(categories).map(([key, cat]) => (
-                                <button
-                                    key={key}
-                                    onClick={() => setSelectedCategory(key)}
-                                    className={`p-2 text-sm rounded-lg text-white font-medium ${
-                                        selectedCategory === key ? 'bg-blue-500' : 'bg-gray-400'
-                                    }`}
-                                >
-                                    {cat.name}
-                                    <span className="block text-xs">({cat.phrases.length})</span>
-                                </button>
-                            ))}
-                            <button
-                                onClick={() => setSelectedCategory('favorites')}
-                                className={`p-2 text-sm rounded-lg text-white font-medium ${
-                                    selectedCategory === 'favorites' ? 'bg-red-500' : 'bg-gray-400'
-                                }`}
-                            >
-                                ❤️ Αγαπημένα
-                                <span className="block text-xs">({favorites.length})</span>
-                            </button>
-                        </div>
-
-                        <div className="bg-white rounded-xl shadow-lg p-6">
-                            <h2 className="text-xl font-bold mb-4">
-                                {selectedCategory === 'favorites' ? 'Αγαπημένα' : categories[selectedCategory]?.name}
-                            </h2>
-                            <div className="space-y-3 max-h-[500px] overflow-y-auto">
-                                {getFilteredPhrases().length === 0 ? (
-                                    <p className="text-gray-500 text-center py-8">
-                                        {selectedCategory === 'favorites' ? 'No favorites yet!' : 'No phrases found.'}
-                                    </p>
-                                ) : (
-                                    getFilteredPhrases().map((phrase, idx) => (
-                                        <div key={idx} className="border-b pb-3 flex justify-between hover:bg-gray-50 p-2 rounded">
-                                            <div className="flex-1">
-                                                <p className="text-lg font-semibold">{phrase.cypriot}</p>
-                                                <p className="text-sm text-gray-500 italic">{phrase.phonetic}</p>
-                                                <p className="text-gray-700">{phrase.english}</p>
-                                            </div>
-                                            <button
-                                                onClick={() => toggleFavorite(phrase.cypriot)}
-                                                className="text-2xl ml-2"
-                                            >
-                                                {favorites.includes(phrase.cypriot) ? '❤️' : '🤍'}
-                                            </button>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
-                        </div>
-                    </div>
+        <!-- Stats -->
+        <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/30 dark:to-indigo-900/30 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+            <div class="flex items-center justify-center gap-6 flex-wrap text-sm">
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"></path>
+                    </svg>
+                    <span class="font-semibold text-indigo-900 dark:text-indigo-100" id="totalCount">0 proverbs</span>
                 </div>
-            );
+                <div class="flex items-center gap-2">
+                    <svg class="w-5 h-5 text-green-600 dark:text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="text-green-900 dark:text-green-100">All translated • No API needed</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Proverbs Container -->
+        <div id="proverbsContainer">
+            <!-- Proverbs will be inserted here -->
+        </div>
+
+        <!-- No Results State -->
+        <div id="noResults" class="text-center py-12 hidden">
+            <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <p class="text-xl text-gray-600 dark:text-gray-400">No proverbs found</p>
+            <p class="text-sm text-gray-500 dark:text-gray-500 mt-2">Try a different search term</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-100 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 mt-12 py-6">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm text-gray-600 dark:text-gray-400">
+                Source: <a href="https://el.wikiquote.org/wiki/Κυπριακές_παροιμίες" target="_blank" rel="noopener" class="text-indigo-600 dark:text-indigo-400 hover:underline">Greek Wikiquote - Cypriot Proverbs</a>
+            </p>
+            <p class="text-xs text-gray-500 dark:text-gray-500 mt-2">
+                Licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener" class="hover:underline">CC BY-SA 4.0</a>
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Dark mode detection
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.classList.add('dark');
+        }
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
+            if (event.matches) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+        });
+
+        // Proverbs data with English translations
+        const proverbs = {
+            "Α": [
+                { greek: "Αδκειασερός παπάς, θάβκει τζαι τους ζωντανούς.", english: "A priest with no work buries even the living.", note: "Someone with nothing to do does useless things." },
+                { greek: "Άθρωπος αθρώπου μοιάζει.", english: "Person resembles person.", note: "People are alike." },
+                { greek: "Άλλα'ν τ' αμμάθκια του λαού τζι άλλα του κουκουβκιάου, τζαι άλλα έν' του αλουπού που κάμνει πάου πάου.", english: "Different are the eyes of the hare, different of the owl, and different of the fox that cries 'pao pao'.", note: "Everyone sees things differently." },
+                { greek: "Αλλού τον τρώει τζαι αλλού κνίθεται.", english: "It bites him in one place and he scratches in another.", note: "Someone else is to blame but he complains elsewhere." },
+                { greek: "Άλλαξεν ο Μανωλιός τζι έβαλεν τα ρούχα του αλλοιώς.", english: "Manolios changed and put his clothes on differently.", note: "Someone may change superficially but remains the same inside." },
+                { greek: "Άμαν εν πάει ο Μωάμεθ εις το βουνόν, πάει το βουνόν εις τον Μωάμεθ.", english: "When Mohammed doesn't go to the mountain, the mountain goes to Mohammed.", note: "If you can't achieve something one way, try another." },
+                { greek: "Αν έν' μηλιά εν να ανθίσει.", english: "If it's an apple tree, it will bloom.", note: "True nature will always reveal itself." },
+                { greek: "Αν ήταν η αζούλα πούζα, έθεν να πουζιάσει ούλος ο κόσμος.", english: "If whining was wealth, the whole world would be rich.", note: "Complaining doesn't solve problems." },
+                { greek: "Αν κάμει ο Μάρτης δκυό νερά τζαι ο Απρίλης άλλον, εν να'ν χαρά σε τζείντον γεωργόν πό 'σιει πολλά σπαρμένα.", english: "If March brings two rains and April another, it will be joy for the farmer who has much sown.", note: "Good weather brings good harvest." },
+                { greek: "Άκουε μεγάλον αμπέλιν τζαι παίρνε μιτσίν καλάθι.", english: "Hear about a big vineyard but take a small basket.", note: "Don't believe everything you hear; be cautious." },
+                { greek: "Άκουε πολλά τζαι πίστευκε λλία.", english: "Hear much and believe little.", note: "Be skeptical of what you're told." },
+                { greek: "Άλλα λόγια, θκειέ παπά!", english: "Other words, priest!", note: "That's a completely different topic; said when someone gives an irrelevant answer." },
+                { greek: "Άλλον μας εδείξαν τζι άλλον μας εμπήξαν.", english: "They showed us one and gave us another.", note: "We saw one thing but got something different; we were deceived." },
+                { greek: "Αλλού σε τρώει τζαι αλλού κνήθεσαι.", english: "It bites you in one place and you scratch in another.", note: "You're addressing the wrong issue." },
+                { greek: "Αλλού σπέρνουν τους, δαμαί γιωρκούν τους.", english: "They sow them in one place and cultivate them in another.", note: "Things are done inconsistently." },
+                { greek: "Άμαν επειράξαν την κοτζιάκαρην, έβαλεν ρομανίσιν μετά.", english: "When they teased the hen, she laid a pomegranate afterwards.", note: "Unexpected results from provocation." },
+                { greek: "Ανάγυιωσ' τον κολλιόν να σου βκάλει τ' αμμάθκια σου.", english: "Raise your child to have him poke your eyes out.", note: "Sometimes children you raise cause you problems." },
+                { greek: "Αντί να τρίζει η άμαξα, τρίζει ο αμαξηλάτης.", english: "Instead of the cart creaking, the cart driver creaks.", note: "The complainer is in the wrong place." },
+                { greek: "Από'ν αππέξω του χορού, πολλά τραούδκια ξέρει.", english: "From outside the dance, he knows many songs.", note: "Those who don't participate think they know everything." },
+                { greek: "Από 'ν ακούει, ταιρκάζει.", english: "When he doesn't hear, he makes mistakes.", note: "Not hearing the full story leads to wrong conclusions." },
+                { greek: "Από 'ν ακούει του γονιού, παραγωνιάς τζοιμάται.", english: "Who doesn't listen to his parents sleeps in corners.", note: "Not heeding parents' advice leads to problems." },
+                { greek: "Aπό 'ν αντρέπεται, ο κόσμος έν' δικός του.", english: "Who is not ashamed, the world is his.", note: "Without shame, one can achieve anything." },
+                { greek: "Από 'ν εμίλησεν επέθανε.", english: "From not speaking he died.", note: "Silence can be harmful." },
+                { greek: "Από 'ν θέλει να πά' στον μύλον, πέντε μέρες κοσσινίζει.", english: "Who doesn't want to go to the mill sifts for five days.", note: "Who doesn't want to do something finds endless excuses." },
+                { greek: "Από 'ν φορτώνει ῾π' όσσω σου, τάνα του να φορτώσει.", english: "If it doesn't load on your back, let him load it himself.", note: "If it doesn't harm you, don't worry about it." },
+                { greek: "Από 'ν μπορεί να δέρει τον γάρον, δέρνει τον σαμά��.", english: "Who can't beat the donkey beats the saddle.", note: "Taking out anger on the wrong target." },
+                { greek: "Από 'ν σε ξέρει, ακριβά σε γοράζει.", english: "Who doesn't know you buys you at a high price.", note: "Strangers think you're better than you are." },
+                { greek: "Από 'ν φορτώνει έσσω σου, τάνα του να φορτώσει.", english: "If it doesn't burden you, let it burden him.", note: "Don't worry about others' problems." },
+                { greek: "Από 'σιει μούγιαν, μουγιάζεται.", english: "Who has a fly swats at flies.", note: "You only deal with problems when they affect you." },
+                { greek: "Από 'σιει πούζαν τζαι παιδίν, στον γάμον τί γυρεύκει;", english: "Who has a wife and child, what does he seek at the wedding?", note: "Why look for what you already have?" },
+                { greek: "Άπου σοδκιάζει τριάντα δκυό τζαι ξοδκιάζει τράντα, έν' νοικοτζύρης πάντα. Άπου ξοδκιάζει τριάντα δκυό αλλά σοδκιάζει τράντα, στην φυλακήν τον παίρνουσιν τζαι εν του δκιούν αμάνταν!", english: "Who earns thirty-two and spends thirty is always a householder. Who spends thirty-two but earns thirty, they take him to prison and don't pity him!", note: "Live within your means or face consequences." },
+                { greek: "Άπου πονεί πάει στον γιατρόν τζαι άπου διψά πάει στην βρύσην.", english: "Who hurts goes to the doctor and who's thirsty goes to the fountain.", note: "Those with problems must seek their own solutions." },
+                { greek: "Από 'σιει γείτον έσιει όσσιον τζι από 'σιει όσσιον τζοιμάται.", english: "Who has a neighbor has help, and who has help sleeps well.", note: "Good neighbors are valuable." },
+                { greek: "Από 'ν έσιει νούν έσιει πόδκια.", english: "Who doesn't have brains has legs.", note: "Those who don't think must work harder." },
+                { greek: "Από το ρίφιν ρίφιν, τζαι γερόκλιαρον αρνίν.", english: "From young billy goat to old lamb.", note: "About breeding quality." },
+                { greek: "Απού Γερόκλιαρον αρνί, τζιαι κοκκορίφιν ρίφιν.", english: "From old lamb, and rooster billy goat.", note: "For good offspring, the male breeder should be young for goats but old for sheep." },
+                { greek: "Απ' αγκάθιν βκαίνει ρόδον.", english: "From thorns comes a rose.", note: "Good can come from bad situations." },
+                { greek: "Ασσημοφόρε τζαι μεν ριάς.", english: "Wear silver and don't shiver.", note: "Better to be dressed than cold, even imperfectly." }
+            ],
+            "Β": [
+                { greek: "Βουνόν με βουνόν εν σμίει.", english: "Mountain with mountain doesn't meet.", note: "But people can always meet; similar to 'mountains don't meet but people do.'" },
+                { greek: "Βούρα, θκειέ, τζαι φτάννω σε.", english: "Rush, wait, and I'll catch you.", note: "Slow and steady wins; those who rush will be caught." }
+            ],
+            "Γ": [
+                { greek: "Γάδαρον κάμνεις, γάδαρον μεγαλώνεις.", english: "You make a donkey, you raise a donkey.", note: "You get what you cultivate; poor training yields poor results." }
+            ],
+            "Δ": [
+                { greek: "Δώσ'του πελλού λουκάνικον, να σου πει 'έν' ζαβόν'.", english: "Give him good sausage and he'll tell you 'it's soap'.", note: "Some people are never satisfied." },
+                { greek: "Δώσ'του πελλού αγγούριν, να σου πει 'έν' ζαβόν'.", english: "Give him good cucumber and he'll tell you 'it's soap'.", note: "Ungrateful people always complain." },
+                { greek: "Δώκε σσοινίν του χωρκάτη, να μπει με τες ποΐνες μες στο κρεβάτιν.", english: "Give rope to the peasant and he'll get in bed with his shoes on.", note: "Give someone too much freedom and they'll abuse it." },
+                { greek: "Δείξε μου τον φίλον σου να σου πω ποιός είσαι.", english: "Show me your friend and I'll tell you who you are.", note: "You're known by the company you keep." },
+                { greek: "Εγιώ στραώνω τζαι πουλώ, τζι εσύ άμπλεπε τζαι γόραζε.", english: "I spread and sell, and you look and buy.", note: "I do my part, you do yours." },
+                { greek: "Είπαν τον πελλόν, τζι επέλλανεν.", english: "They called him good and he went bad.", note: "Praise can spoil someone." },
+                { greek: "Έλα, παππού, να σου δείξω τ' αμπέλια σου.", english: "Come, grandfather, let me show you your vineyards.", note: "Said sarcastically when teaching someone what they should already know." },
+                { greek: "Έν' της παπαδκιάς τα ξύλα!", english: "They're the priest's wife's wood!", note: "She takes extra care of what belongs to her." },
+                { greek: "Έναν Όϊ αξίζει έναν ανόιν τζαι έναν κατόιν.", english: "One 'Oh!' is worth one going up and one going down.", note: "A moment of surprise equals much effort." },
+                { greek: "Ένας παπάς δκυό εκκλησιές, της μιας γελά της.", english: "One priest, two churches - one is neglected.", note: "Doing too many things means something gets left behind." },
+                { greek: "Εν τζι έν' φά' τζαι κνίστου, έν' φά' τζαι ποταυρίστου!", english: "It's not just eat and smell, it's eat and be content!", note: "There's more to satisfaction than just consumption." },
+                { greek: "Έπαρ' τον εις τον γάμον σου να σου πει τζαι του γρόνου!", english: "Take him to your wedding so he can tell you about next year too!", note: "Said about someone who gives unwanted advice." },
+                { greek: "Ετζύλησεν ο τέντζερης, τζαι ηύρεν το καππάτζιν.", english: "The pot rolled and found its lid.", note: "Every pot finds its lid; everyone finds their match." },
+                { greek: "Ετζύλισεν το στούππωμαν, τζαι ηύρεν την μαείρισσαν.", english: "The stopper rolled and found the cook.", note: "Things find their proper match." },
+                { greek: "Επήεν ο φτωχός να αρμαστεί, τζι εμίτσιανεν η νύχτα!", english: "The poor man went to get engaged and night fell!", note: "The unfortunate face delays and obstacles." },
+                { greek: "Εσυνάφερες τον ξένον, φερ' τζαι την τσαέραν του.", english: "You brought the stranger, bring his bag too.", note: "Accept the full consequences of your actions." },
+                { greek: "Έβκαλεν η γλώσσα μου μαλλιά!", english: "My tongue grew hair!", note: "I've talked so much I'm exhausted." },
+                { greek: "Εβκήκεν κούππα άπαννη.", english: "It came out completely even.", note: "Everything worked out perfectly." },
+                { greek: "Εδώκαν μου αυκόν, τζι εζήτουν την όρνιθαν.", english: "They gave me an egg and asked for the chicken.", note: "Demanding too much in return for little given." },
+                { greek: "Έν' ο νούς σου τζι έν' μια λίρα τζιαι γυρίζει βύρρα βύρρα.", english: "Your mind is like a pound coin spinning round and round.", note: "Your thoughts are scattered and unfocused." }
+            ],
+            "Ε": [
+                { greek: "Εσηκωστήκαν τα πόδκια να φατσίσουν πάς στην κκελέν.", english: "The feet stood up to slap the head.", note: "The world turned upside down; subordinates rebelling." },
+                { greek: "Εσού που είσαι έξυπνος τζαι ο νούς σου κατεβάζει, εφτά οκκάες σίερο πόσα βελόνια φκάζει; Πεντέξι φκάλλει σίουρα τζαι κάτι παραπάνω τζαι θκιό σιεροπάλλουκα να φκεις να κάτσεις πάνω.", english: "You who are so smart and your mind calculates, seven okes of iron, how many needles does it make? Sixteen for sure and a bit more, and two iron stakes to sit on.", note: "A riddle mocking someone's claimed intelligence." },
+                { greek: "Έτσι κκελλέ, έτσι ξιουράφι θέλει", english: "Such a head needs such a razor.", note: "The punishment fits the crime; appropriate response." }
+            ],
+            "Ζ": [
+                { greek: "Ζήσε Μάη μου να φας τριφύλλιν.", english: "Live, my May, to eat clover.", note: "Wait for better times; good things come to those who wait." }
+            ],
+            "Η": [
+                { greek: "Η μαχαιρκά γιανίσκει, αμμά ο κακός ο λόος μεινίσκει.", english: "The knife wound heals, but the bad word remains.", note: "Words can hurt more than physical wounds." },
+                { greek: "H αντροπή εν πουκά' στο πάπλωμα.", english: "Shame doesn't hide under the blanket.", note: "Shame is visible and can't be concealed." },
+                { greek: "Η απάντηση του πελλού έν' η σιωπή.", english: "The answer to a fool is silence.", note: "Don't argue with fools." },
+                { greek: "Η γλώσσα κόκκαλα δεν έσιει τζαι κόκκαλα τσακκίζει.", english: "The tongue has no bones but it breaks bones.", note: "Words can be very harmful." },
+                { greek: "Η καθαριότητα έν' μισή αρκοντιά.", english: "Cleanliness is half of nobility.", note: "Being clean is a mark of respectability." },
+                { greek: "Η μάνα έν' μάνναν.", english: "The mother is manna.", note: "Mother is a gift from God, precious and irreplaceable." },
+                { greek: "Η νύφη αντά 'ν να γεννηθεί, της πεθεράς ημοιάζει.", english: "The bride, even before being born, resembles her mother-in-law.", note: "Daughters-in-law and mothers-in-law share similar traits." },
+                { greek: "Η πολλή η καλοσύνη εν γαϊδουροσίνη.", english: "Too much kindness is donkey-ness.", note: "Being too kind makes you a fool." },
+                { greek: "Ηύρες το σύκον σήκωσ' το πριν το σηκώσουν άλλοι.", english: "If you found the fig, pick it up before others do.", note: "Seize opportunities when you find them." },
+                { greek: "Ηύρες φαΐν, φάε, ηύρες ξύλον, φύε!", english: "Found food, eat; found wood, flee!", note: "Take the good and avoid the bad." }
+            ],
+            "Θ": [
+                { greek: "Θέλει βουν τζαι γάρον.", english: "He wants an ox and a donkey.", note: "Demanding too much; in old times these were valuable dowry items." },
+                { greek: "Θέλει την πίττα σωστήν, τζαι τον σσιύλλον χορτάτον.", english: "He wants the pie whole and the dog fed.", note: "He wants to have his cake and eat it too." },
+                { greek: "Θώρε την κρυάδαν, τζαι μοίραζε το πάπλωμαν.", english: "See how cold it is and share the blanket accordingly.", note: "Distribute help according to need." },
+                { greek: "Θυμός του χωρκάτη, ζημιά του πουντζιού του.", english: "The peasant's anger is damage to his pocket.", note: "Your anger only hurts yourself." }
+            ],
+            "Κ": [
+                { greek: "Καλός καλός ο σιοίρος μας, μα έβκην χαλαζιάρης.", english: "Good, good was our pig, but it came out full of hail.", note: "Things don't always turn out as expected despite good beginnings." },
+                { greek: "Καλά κρασιά.", english: "Good wines.", note: "Nonsense; foolish talk." },
+                { greek: "Κάτσε την μάππαν χαμαί.", english: "Put the ball down.", note: "Stop showing off; don't act smart." },
+                { greek: "Καμήλα κλάννει στο Πεντάκωμον.", english: "A camel farts in Pentakomo.", note: "Something ridiculous or unbelievable." },
+                { greek: "Καλημέρα καμηλάρη, καμηλάρη καλημέρα.", english: "Good morning camel driver, camel driver good morning.", note: "Polite but empty exchange; going in circles." },
+                { greek: "Κάλλιον πέντε τζαι στο σιέριν, παρά δέκα τζαι καρτέριν.", english: "Better five in hand than ten and waiting.", note: "A bird in the hand is worth two in the bush." },
+                { greek: "Κάμε το καλόν, τζαι ρίψε το στον γυαλόν", english: "Do good and throw it in the sea.", note: "Do good without expecting anything in return." },
+                { greek: "Κάμνεις τον ψύλλον κάμηλον.", english: "You make the flea a camel.", note: "You're making a mountain out of a molehill." },
+                { greek: "Κατά που σου κάμνουν κάμνε, τζαι κατζίαν μεν κρατάς.", english: "Do as they do to you, and hold no grudge.", note: "Treat others as they treat you." },
+                { greek: "Κοφτά τζαι Τρικωμίτικα!", english: "Short and Trikomo-style!", note: "Brief and to the point." },
+                { greek: "Κουτσιά τζαι κολοκάσιν έναν τόπον εν να πάσιν!", english: "Lame person and taro root won't go to the same place!", note: "Two incompatible things won't work together." }
+            ],
+            "Λ": [
+                { greek: "Λείπει ο Μάρτης 'που την Σαρακοστήν;", english: "Is March missing from Lent?", note: "Said when something obvious is stated; of course March comes during Lent." },
+                { greek: "Λείψε 'που το ψυσικόν, να μεν σ' εύρει το κρίμαν.", english: "Be away from the natural place so the curse won't find you.", note: "Sometimes it's better to stay away to avoid trouble." }
+            ],
+            "Μ": [
+                { greek: "Μάρτης γδάρτης, τζαι κακός παλλουκοκάφτης.", english: "March the skinner, and bad stake-burner.", note: "March is harsh and cold, even burning stakes doesn't help." },
+                { greek: "Τον Μάρτην ξύλα φύλαε, μεν κάψεις τα παλλούτζια.", english: "In March save wood, don't burn the stakes.", note: "March can be so cold you'll need all your wood." },
+                { greek: "Μάθε τέγνην, τζαι κρέμασ' την εις το παλλούτζιν.", english: "Learn a craft and hang it on the stake.", note: "Learn skills even if you don't use them; they're good to have." },
+                { greek: "Μεάλον βούκκον φάε, μ��άλον λόον μεν πεις.", english: "Eat a big bite, don't say a big word.", note: "Talk less, do more; don't brag." },
+                { greek: "Με τον συγγενήν σου φάε πιε, τζαι αλισβερίσσιν μεν κάμεις.", english: "With your relative eat and drink, but don't do business.", note: "Don't mix family and business." },
+                { greek: "Με ξένον κώλον, κλάννω τζι εγιώ...", english: "With someone else's backside, I fart too...", note: "With other people's resources, I can boast too; easy to be generous with others' things." },
+                { greek: "Με συγγενήν σου φάε πιε, τζι αλισβερίσια μεν κάμεις!", english: "With your relative eat and drink, but don't do business!", note: "Keep family and business separate." },
+                { greek: "Μια παθκιά του γέρου, αξίζει σσίλιες του παιδκιού.", english: "One old man's experience is worth a thousand child's.", note: "Experience is more valuable than youth." },
+                { greek: "Μεν σούζεις τα πόδκια σου, πριχού καβαλλιτζέψεις.", english: "Don't warm your feet before you mount the horse.", note: "Don't celebrate before you succeed." }
+            ],
+            "Ν": [
+                { greek: "Να σου δώσει η μούλα η γεραφώνα.", english: "May the pregnant mule give to you.", note: "You'll get nothing, since mules can't reproduce; a curse meaning you'll never receive it." },
+                { greek: "Να ππέσει τ' αυκόν 'που τον κώλον της εν θα σπάσει.", english: "If the egg falls from her bottom it won't break.", note: "Said about very short women; they're so close to the ground nothing breaks." },
+                { greek: "Να ποταυρίζεσαι ώσπου φτάνει το σιέριν σου.", english: "Be content as far as your hand reaches.", note: "Live within your means." },
+                { greek: "Νηστεύκει το λαρτίν τζαι τρώει την μίλλαν.", english: "The lard fasts and eats the honeycomb.", note: "Hypocrisy; doing the opposite of what you preach." }
+            ],
+            "Ξ": [
+                { greek: "Ξεροκέφαλος κεφάλα, λαλεί ο πόντιος.", english: "Dry-headed head, says the mouse.", note: "The pot calling the kettle black." },
+                { greek: "Ξένος πόνος, ούλλον γέλιον.", english: "Someone else's pain is all laughter.", note: "People don't take others' problems seriously." },
+                { greek: "Ξένη ράσιη, σίηλιες ξυλιές.", english: "Someone else's behind, a thousand beatings.", note: "Easy to punish when it's not your problem." }
+            ],
+            "Ο": [
+                { greek: "Ο άθρωπος ο γιναξιής, τρώει πάντα της κκελλές του.", english: "The womanly man always eats of his head.", note: "A hen-pecked man suffers." },
+                { greek: "Ο βους επέθανεν, η φουμουσιαρκά εχάλασεν.", english: "The ox died, the yoke broke.", note: "When one thing fails, everything falls apart." },
+                { greek: "Ο γάρος ο οκνιάρης, έν' τζαι βαρυγομαρκάρης.", english: "The lazy donkey is also heavily loaded.", note: "Lazy people end up working harder." },
+                { greek: "Ο Θεός αγαπά τον κλέφτην, αλλά αγαπά τζαι τον νοικοτζύρην.", english: "God loves the thief, but he also loves the householder.", note: "Justice will prevail; both sides are considered." },
+                { greek: "Ο κάττος τζι αν εγέρασεν, τα νύσια που 'σιεν έσιει.", english: "The cat, even if it aged, has the claws it had.", note: "Old habits die hard; people don't change their nature." },
+                { greek: "Ο κάττος τζι ο καλόηρος, το ψάριν αγαπούν το!", english: "The cat and the monk, they love the fish!", note: "Both hide their true desires." },
+                { greek: "Ο κλέφτης τζαι ο ψέφτης, τον πρώτον γρόνον σιαίρουνται!", english: "The thief and the liar enjoy the first year!", note: "Deception works only temporarily." },
+                { greek: "Ο κώλος ο τίτσιρος/αναβράκωτος, είδεν το βρατζίν τζι εσιέστην!", english: "The naked bottom saw the pants and trembled!", note: "Someone afraid of consequences they deserve." },
+                { greek: "Ο νούρος του σσιύλλου εν ισσιώννει.", english: "The dog's tail doesn't straighten.", note: "Some things never change." },
+                { greek: "Ο ξένος τζι ο στραβός, έν' έναν!", english: "The stranger and the crooked one are the same!", note: "Don't trust strangers." },
+                { greek: "Ο πελλός, θέλλει τον αντίπελλόν του!", english: "The fool needs his equal fool!", note: "Birds of a feather flock together." },
+                { greek: "Ο ψηλός τρώει τα σύκα, τζαι ο κοντός συκόφυλλα.", english: "The tall one eats the figs, and the short one fig leaves.", note: "The powerful get the best, the weak get leftovers." },
+                { greek: "Ούλοι λέσιν τζαι ῾πολέσιν, τζι ο πελλός τζι που πονεί!", english: "Everyone talks and promises, but only the fool who hurts!", note: "Talk is cheap; only the sufferer knows the pain." },
+                { greek: "Όμορφον μωρόν στην σούσαν, άνοστον στην γειτονιάν.", english: "Beautiful baby in the cradle, tasteless in the neighborhood.", note: "What's precious to you may be ordinary to others." },
+                { greek: "Όπως έστρωσες να τζοιμηθείς", english: "As you made your bed, so shall you sleep.", note: "You must face the consequences of your actions." },
+                { greek: "Όποιος θέλει τα πολλά, χάνει τζαι τα λλία.", english: "Who wants too much loses even the little.", note: "Greed leads to loss." },
+                { greek: "Όποιος φατσίσει στο ανώβλιν, θωρεί τζαι το κατώβλιν.", english: "Who reaches the top sees the bottom too.", note: "Success gives perspective on everything." },
+                { greek: "Όποιος βκιάζεται, σκονταύκει.", english: "Who hurries, stumbles.", note: "Haste makes waste." },
+                { greek: "Όπου λαλούν πολλοί πετεινοί, αρκεί να ξημερώσει.", english: "Where many roosters crow, it's enough if it dawns.", note: "Too many leaders cause confusion." },
+                { greek: "Όπου φτωχός τζι η μοίρα του.", english: "Where there's poverty, there's its fate.", note: "Poverty brings bad luck." },
+                { greek: "Ό,τι αθθυμάσαι, σιαίρεσαι.", english: "What you remember, you enjoy.", note: "Memories bring happiness." },
+                { greek: "Ό,τι χορεύκω, παίζε μου!", english: "Whatever I dance, play for me!", note: "I want things my way; demanding compliance." }
+            ],
+            "Π": [
+                { greek: "Παπάς που λουτουρκά δκυό εκκλησιές, της μιας γελά της.", english: "A priest who serves two churches neglects one.", note: "Doing multiple things means something suffers." },
+                { greek: "Παίζει τον πελλόν, για να βκει σκάρτος.", english: "He plays the fool to come out smart.", note: "Pretending to be dumb to gain advantage." },
+                { greek: "Παίζε του γάρου λύραν, να χορεύκει βύρα βύρα.", english: "Play the lyre for the donkey so it dances round and round.", note: "Wasting effort on those who can't appreciate it." },
+                { greek: "Παρά να συντυχάννεις, καλλύττερα να κλάννεις", english: "Rather than meet [someone bad], better to fart.", note: "Some encounters are worse than embarrassment." },
+                { greek: "Παφίτην αναγυιώνεις, χρυσάφιν νεκατώνεις.", english: "Raise a Paphian, you discover gold.", note: "People from Paphos are as valuable as gold." },
+                { greek: "Τύλληρον αναγυιώνεις , κατσόσιοιρον μερώνεις.", english: "Raise a Tyllerian, you tame a hedgehog.", note: "Teaching someone from Tylleria is impossible, like taming a hedgehog." },
+                { greek: "Πέντε μίλια, δέκα ώρες.", english: "Five miles, ten hours.", note: "Very slow progress." },
+                { greek: "Πε, πε, εν να το πει τζι ο κώλος του!", english: "Say, say, his bottom will say it too!", note: "He'll regret those words." },
+                { greek: "Πέρα βρέσιει, στην Καραμανιάν σιονίζει!", english: "It rains here, it snows in Karamania!", note: "Said when someone doesn't understand what you're saying; completely disconnected." },
+                { greek: "Πεσς ταμπούρα τόρτ οκκά", english: "Five melons, four okes.", note: "Things don't add up; nonsensical measurement." },
+                { greek: "Πέψε τον πελλόν, τζαι λάμνε ταπισόν του.", english: "Trust the fool and take his mat.", note: "Don't trust fools with anything." },
+                { greek: "Πκιάσε τον έναν, τζαι φάκκα τον πας στον άλλον.", english: "Catch one and take him as an example to the other.", note: "Both are equally foolish; six of one, half dozen of the other." },
+                { greek: "Ππέφτουν τα ποξαμάθκια τζει που 'ν έσιει δόντια.", english: "Hard biscuits fall to the one without teeth.", note: "Good things come when you can't use them." },
+                { greek: "Πόθεν είσαι θκειέ; Κουτσιά εμαείρεψα.", english: "Where are you from? I cooked lame.", note: "Answering something completely irrelevant to the question." },
+                { greek: "Πού σου νεύκω, πού παεις!", english: "Where I signal you, where you go!", note: "You never follow instructions." },
+                { greek: "῾Που στύλλον, στύλλον άνεση!", english: "From the post, post relief!", note: "Getting help from an unlikely source." },
+                { greek: "Πουλάς αέρας, τζαι πκιάνεις ριάλια.", english: "You sell air and catch coins.", note: "Making money from nothing; selling empty promises." },
+                { greek: "Πουμπουρίζει γέρο, αστράφτει κοτζιάκαρη!", english: "The old man thunders, the hen lightnings!", note: "Absurd reversal of natural order." },
+                { greek: "Πρέπει να το 'σιει η κούτρα σου, να κατεβάζει φτείρες.", english: "Your head must have it, to lower lice.", note: "You must be crazy to think that way." }
+            ],
+            "Ρ": [
+                { greek: "Ρίφκε αβκά πας τον τοίχον.", english: "Throw eggs at the wall.", note: "Wasting effort; doing something futile." },
+                { greek: "Ρωτώντας πας στην πόλην!", english: "By asking you go to the city!", note: "Don't be afraid to ask for directions or help." }
+            ],
+            "Σ": [
+                { greek: "Σ��ίτιν όσον να σε φωρεί, τζαι κάμπον ώσπου θωρείς.", english: "A house as much as it shelters you, and a field as far as you see.", note: "Be satisfied with what you need." },
+                { greek: "Σσύλλον πλύννεις, σσύλλον λούσεις, πάλε σσυλιές μυρίζει.", english: "Wash the dog, bathe the dog, it still smells like dog.", note: "You can't change someone's fundamental nature." },
+                { greek: "Σσύλλος που λάσει, εν δακάνει.", english: "A dog that barks doesn't bite.", note: "Those who threaten loudly rarely act." },
+                { greek: "Σταφύλιν φάε, τζι αμπέλιν μεν ρωτάς.", english: "Eat the grape and don't ask about the vine.", note: "Accept what's offered without questioning." },
+                { greek: "Στην ανερκάν, φελά τζαι το χαλάζιν", english: "In drought, even hail is useful.", note: "In desperate times, anything helps." },
+                { greek: "Στου κουφού την πόρταν, όσον θέλεις βρόντα!", english: "At the deaf man's door, thunder as much as you want!", note: "Your efforts are wasted on those who won't listen." },
+                { greek: "Στο σπίτιν του κρεμμασμένου, μεν μιλάς για σιοινήν.", english: "In the hanged man's house, don't speak of rope.", note: "Don't mention sensitive topics that cause pain." },
+                { greek: "Στο καλάθιν εν χωρώ, στο κοσιήνην περισσεύκω.", english: "In the basket I don't fit, in the sieve I overflow.", note: "Hard to please; nothing is right." }
+            ],
+            "Τ": [
+                { greek: "Τα γέριμα τα κάτσαρα να μεν εκορακούσαν, τα λόγια τα παράξενα να μεν μου τα λαλούσαν.", english: "May the old wrinkled ones not croak, may the strange words not be spoken to me.", note: "Wishing to avoid unpleasant people and words." },
+                { greek: "Τα μακρά, κοντά εγινήκασιν.", english: "The long ones became short.", note: "Time has passed quickly." },
+                { greek: "Τα μαράζια πύρκους καταλυούν, τζ' ανώγεια βάλλουν κάτω.", english: "Sorrows destroy towers, and upper floors bring down.", note: "Grief destroys the strongest things." },
+                { greek: "Τα πολλά λόγια εν φτώσεια.", english: "Too many words are poverty.", note: "Talking too much shows lack of substance." },
+                { greek: "Τάσσει φούρνους ποξαμάθκια.", english: "He promises ovens of biscuits.", note: "Making empty promises." },
+                { greek: "Τάσσω τ' αμπέλια μου, ν' αρμάσω τα παιθκιά μου.", english: "I arrange my vineyards to marry my children.", note: "Planning ahead for important things." },
+                { greek: "Τζ' απού κοπεί, ας μείνει.", english: "And from where it's cut, let it remain.", note: "What's done is done; accept the consequences." },
+                { greek: "Τζει που βρέσσιει, φαίνεται, τζει που σσιονίζει, ασπρίζει!", english: "Where it rains, it shows, where it snows, it whitens!", note: "Actions have visible consequences." },
+                { greek: "Τζει που 'ννά απηήσει η τσούρα, εννά πηήσει τζαι το ρίφιν.", english: "Where the bag goes, the kid goes too.", note: "Where one goes, the other follows." },
+                { greek: "Τζείνος που ρέσσει τζαι εν λαλεί μέ γεια σου, μέ καλώς τον, στο παναΐριν έπαρτον, τζαι όσα σου δώκουν δώς τον. Tζαι τζείνον που τον σιαιρετάς τζα�� εν σου πολοέται στο παναΐριν έπαρτον να δεις πως εν πουλιέται.", english: "The one who passes and doesn't greet you with 'hello', take him to the fair and give him what they give you. And the one you greet and doesn't respond, take him to the fair to see how he's sold.", note: "Test people's true worth." },
+                { greek: "Τζινούρκον είσαι κόσιηνον, τζιαί που να σε κρεμάσω.", english: "You're a sieve purse, where should I hang you.", note: "You're useless; can't hold anything." },
+                { greek: "Τζοιμάσαι την νύχταν με τον στραόν, τζιαι το πρωίν αλληθωρίζεις.", english: "You sleep at night with the crooked one, and in the morning you straighten.", note: "Hypocrisy; acting differently depending on circumstances." },
+                { greek: "Τζυλούν το αφκόν με την μαναβέλαν.", english: "They roll the egg with the pin.", note: "Handling something very carefully." },
+                { greek: "Τι κάμνεις γέρο; Κουτσιά εμαείρεφκα.", english: "What are you doing, old man? I cooked lame.", note: "Giving an irrelevant answer." },
+                { greek: "Το έξυπνος πουλλίν, που την μούττην πιάνεται.", english: "The smart bird gets caught by the nose.", note: "Even clever people can be fooled." },
+                { greek: "Το γέλιον της Παρασκευής, το κλάμαν του Σαββάτου.", english: "Friday's laughter, Saturday's crying.", note: "Joy can quickly turn to sorrow." },
+                { greek: "Το γινάτιν φκάλει αμάτιν.", english: "Vinegar brings out eyes.", note: "Sourness causes tears; bad things cause pain." },
+                { greek: "Το λαμπρόν, τζει που πέφτει κρούζει.", english: "The fire burns where it strikes.", note: "Consequences are felt by those directly affected." },
+                { greek: "Το 'να σιέριν νύφκει τ' άλλον, τζαι τα θκυό το πρόσωπον.", english: "One hand washes the other, and both wash the face.", note: "Mutual cooperation benefits all." },
+                { greek: "Το κρίμα εν πάς το κλίμαν.", english: "The sin goes to the climate.", note: "Blame is often misplaced." },
+                { greek: "Το σσυλλίν σου τζαι το παιδίν σου όπως τα μάθεις.", english: "Your dog and your child are as you teach them.", note: "Training and upbringing shape behavior." },
+                { greek: "Τον Μάρτην ξύλα φύλαε, μεν κάψεις τα παλλούτζια.", english: "In March save wood, don't burn the stakes.", note: "March can be very cold; conserve resources." },
+                { greek: "Τον αλουπόν η τρύπα του εν τον εχώρεν, τζαι ετράβαν τζαι τριζοκολόκαν.", english: "The fox's hole doesn't fit him, so he pulled in a pumpkin too.", note: "Greedy people want more than they can handle." },
+                { greek: "Τον αράπην τζι αν τον πλύννεις, το σαπούνι ν σου χαλάς.", english: "Even if you wash the black man, you waste your soap.", note: "Some things can't be changed." },
+                { greek: "Τον πελλόν τζαι τον μουττάτον, ο θεός ημπρουμουτά τον.", english: "The fool and the drunk, God brings them together.", note: "Fools find each other." },
+                { greek: "Τον ποντικόν η τρύπα εν τον εφόρεν, τζαι 'τράβαν τριζοκολόκαν.", english: "The mouse's hole doesn't carry him, and he pulled a pumpkin.", note: "Wanting more than you can handle." },
+                { greek: "Του πελλού η απάντηση, εν η σι��πή.", english: "The fool's answer is silence.", note: "Best not to respond to foolishness." },
+                { greek: "Τράβα με, τζ' ας κλαίω.", english: "Pull me, even if I cry.", note: "Sometimes you need to do what's right even if it hurts." },
+                { greek: "Τρείς Ελιές, τζαι Καμινάρκα, τρώσιν μές τα κοφινάρκα.", english: "Three from Elies and Kaminarka eat in the baskets.", note: "People from certain villages have particular habits." }
+            ],
+            "Υ": [
+                { greek: "Ύστερα φέρνει ο φούρνος την πυράν.", english: "Later the oven brings the fire.", note: "Consequences come eventually; you reap what you sow." }
+            ],
+            "Φ": [
+                { greek: "Φακούν του παπά με τα πρόσφορα.", english: "Lentils of the priest with the communion bread.", note: "Mixing incompatible things." },
+                { greek: "Φταίουν του τα ρούχα του.", english: "His clothes are to blame.", note: "Said of someone easily angered or irritable." }
+            ],
+            "Χ": [
+                { greek: "Χωρεί τον η τρύπα του βελονιού.", english: "The eye of the needle fits him.", note: "When someone wants something badly, they'll find a way." }
+            ],
+            "Ψ": [
+                { greek: "Ψουμιά έν είχαμεν, τζαι ρεπάνια εγυρεύκαμεν.", english: "We had no bread, and we looked for radishes.", note: "Seeking luxuries when lacking basics." }
+            ],
+            "Ω": [
+                { greek: "Ώσπου να 'βρουμεν την φωνήν, εξηχάσαμεν το τραούδιν.", english: "By the time we found the voice, we forgot the song.", note: "Taking so long that the original purpose is lost." },
+                { greek: "Ώσπου πάμεν τζαι γερνούμεν, άλλα πράμματα θωρούμεν.", english: "As we go and age, we see other things.", note: "With age comes different perspectives." }
+            ]
         };
 
-        ReactDOM.render(<App />, document.getElementById('root'));
+        // Current filter state
+        let currentCategory = 'all';
+        let currentSearch = '';
+
+        // Initialize app
+        function init() {
+            updateStats();
+            renderCategories();
+            renderProverbs();
+            setupEventListeners();
+        }
+
+        // Update statistics
+        function updateStats() {
+            let total = 0;
+            Object.values(proverbs).forEach(arr => total += arr.length);
+            document.getElementById('totalCount').textContent = `${total} proverbs`;
+        }
+
+        // Render category navigation
+        function renderCategories() {
+            const nav = document.getElementById('categoryNav');
+            const categories = Object.keys(proverbs).sort();
+
+            nav.innerHTML = `
+                <button onclick="filterByCategory('all')"
+                    class="px-4 py-2 rounded-lg font-medium transition-all ${currentCategory === 'all' ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}">
+                    All
+                </button>
+                ${categories.map(cat => `
+                    <button onclick="filterByCategory('${cat}')"
+                        class="px-4 py-2 rounded-lg font-medium transition-all ${currentCategory === cat ? 'bg-indigo-600 text-white' : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'}">
+                        ${cat}
+                    </button>
+                `).join('')}
+            `;
+        }
+
+        // Filter by category
+        function filterByCategory(category) {
+            currentCategory = category;
+            renderCategories();
+            renderProverbs();
+        }
+
+        // Render proverbs
+        function renderProverbs() {
+            const container = document.getElementById('proverbsContainer');
+            const noResults = document.getElementById('noResults');
+
+            let allProverbs = [];
+
+            if (currentCategory === 'all') {
+                Object.entries(proverbs).forEach(([letter, items]) => {
+                    items.forEach(proverb => {
+                        allProverbs.push({ ...proverb, letter });
+                    });
+                });
+            } else {
+                proverbs[currentCategory].forEach(proverb => {
+                    allProverbs.push({ ...proverb, letter: currentCategory });
+                });
+            }
+
+            // Filter by search
+            if (currentSearch) {
+                const searchLower = currentSearch.toLowerCase();
+                allProverbs = allProverbs.filter(p => {
+                    const greekMatch = p.greek.toLowerCase().includes(searchLower);
+                    const englishMatch = p.english.toLowerCase().includes(searchLower);
+                    const noteMatch = p.note?.toLowerCase().includes(searchLower);
+                    return greekMatch || englishMatch || noteMatch;
+                });
+            }
+
+            if (allProverbs.length === 0) {
+                container.innerHTML = '';
+                noResults.classList.remove('hidden');
+                return;
+            }
+
+            noResults.classList.add('hidden');
+
+            // Group by letter
+            const grouped = {};
+            allProverbs.forEach(p => {
+                if (!grouped[p.letter]) grouped[p.letter] = [];
+                grouped[p.letter].push(p);
+            });
+
+            container.innerHTML = Object.entries(grouped).map(([letter, items]) => `
+                <div class="mb-8" id="category-${letter}">
+                    <h2 class="text-2xl font-bold mb-4 text-indigo-600 dark:text-indigo-400 border-b-2 border-indigo-200 dark:border-indigo-800 pb-2">
+                        ${letter}
+                    </h2>
+                    <div class="space-y-4">
+                        ${items.map(proverb => renderProverbCard(proverb)).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render individual proverb card
+        function renderProverbCard(proverb) {
+            return `
+                <div class="proverb-card bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-5 shadow-sm">
+                    <div class="space-y-3">
+                        <div>
+                            <p class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                                ${escapeHtml(proverb.greek)}
+                            </p>
+                            <p class="text-base text-indigo-700 dark:text-indigo-300 font-medium">
+                                ${escapeHtml(proverb.english)}
+                            </p>
+                        </div>
+                        ${proverb.note ? `
+                            <p class="text-sm text-gray-600 dark:text-gray-400 italic pl-4 border-l-2 border-gray-300 dark:border-gray-600">
+                                ${escapeHtml(proverb.note)}
+                            </p>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            const searchInput = document.getElementById('searchInput');
+            searchInput.addEventListener('input', (e) => {
+                currentSearch = e.target.value;
+                renderProverbs();
+            });
+        }
+
+        // Utility function
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Make functions globally accessible
+        window.filterByCategory = filterByCategory;
+
+        // Initialize on load
+        init();
     </script>
 </body>
 </html>
